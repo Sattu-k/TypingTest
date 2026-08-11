@@ -9,7 +9,6 @@ const accuracyElement = document.getElementById("accuracy");
 const speedElement = document.getElementById("speed");
 
 const finishBtn = document.getElementById("finishBtn");
-
 const resultBox = document.getElementById("result");
 
 const finalSpeed = document.getElementById("finalSpeed");
@@ -21,7 +20,28 @@ const finalCorrect = document.getElementById("finalCorrect");
 const finalWrong = document.getElementById("finalWrong");
 const finalMarks = document.getElementById("finalMarks");
 
+
+// ========================================
+// ORIGINAL PASSAGE
+// ========================================
+
 const passage = passageElement.innerText.trim();
+
+
+// ========================================
+// PASSAGE STATISTICS
+// ========================================
+
+// Total words in original passage
+const passageWords = passage.split(/\s+/).filter(Boolean).length;
+
+// Total keystrokes = every character including spaces
+const passageKeystrokes = passage.length;
+
+
+// ========================================
+// TEST VARIABLES
+// ========================================
 
 let timeLeft = 600;
 let timerStarted = false;
@@ -29,14 +49,26 @@ let testFinished = false;
 let timerInterval = null;
 
 let mistakes = 0;
-let keystrokes = 0;
+let typedKeystrokes = 0;
 let correctKeystrokes = 0;
 let wrongKeystrokes = 0;
 
 
-// -----------------------------------------
+// ========================================
 // TIMER
-// -----------------------------------------
+// ========================================
+
+function updateTimer() {
+
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+
+    timerElement.textContent =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
+}
+
 
 function startTimer() {
 
@@ -57,251 +89,270 @@ function startTimer() {
 
         updateTimer();
 
+        updateLiveResults();
+
     }, 1000);
 }
 
 
-function updateTimer() {
+// ========================================
+// CHECK COMPLETE TYPED TEXT
+// ========================================
 
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
+function calculateMistakes() {
 
-    timerElement.textContent =
-        String(minutes).padStart(2, "0") +
-        ":" +
-        String(seconds).padStart(2, "0");
+    const typedText = typingBox.value;
+
+    let wrong = 0;
+    let correct = 0;
+
+    const maxLength = Math.max(
+        typedText.length,
+        passage.length
+    );
+
+    for (let i = 0; i < maxLength; i++) {
+
+        const typedCharacter = typedText[i];
+        const correctCharacter = passage[i];
+
+        if (typedCharacter === correctCharacter) {
+            correct++;
+        } else {
+            wrong++;
+        }
+    }
+
+    return {
+        wrong: wrong,
+        correct: correct
+    };
 }
 
 
-// -----------------------------------------
-// TYPING
-// -----------------------------------------
+// ========================================
+// GET TYPED WORDS
+// ========================================
 
-typingBox.addEventListener("keydown", function (event) {
+function getTypedWords() {
 
-    if (testFinished) {
-        event.preventDefault();
-        return;
+    const typedText = typingBox.value.trim();
+
+    if (typedText === "") {
+        return 0;
     }
 
-    // Start timer on first key
-    startTimer();
+    return typedText.split(/\s+/).filter(Boolean).length;
+}
 
 
-    // Block Backspace
-    if (event.key === "Backspace") {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block Delete
-    if (event.key === "Delete") {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block Ctrl+A
-    if (event.ctrlKey && event.key.toLowerCase() === "a") {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block Ctrl+C
-    if (event.ctrlKey && event.key.toLowerCase() === "c") {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block Ctrl+X
-    if (event.ctrlKey && event.key.toLowerCase() === "x") {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block Ctrl+V
-    if (event.ctrlKey && event.key.toLowerCase() === "v") {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block Ctrl+Z
-    if (event.ctrlKey && event.key.toLowerCase() === "z") {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block arrow keys
-    if (
-        event.key === "ArrowLeft" ||
-        event.key === "ArrowRight" ||
-        event.key === "ArrowUp" ||
-        event.key === "ArrowDown"
-    ) {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Block Home / End
-    if (
-        event.key === "Home" ||
-        event.key === "End" ||
-        event.key === "PageUp" ||
-        event.key === "PageDown"
-    ) {
-        event.preventDefault();
-        return;
-    }
-
-
-    // Only count normal typing keys
-    if (event.key.length === 1 || event.key === "Enter" || event.key === "Tab") {
-
-        keystrokes++;
-
-        const typedText = typingBox.value;
-        const currentPosition = typedText.length - 1;
-
-        if (currentPosition >= 0) {
-
-            const typedCharacter = typedText[currentPosition];
-            const correctCharacter = passage[currentPosition];
-
-            if (typedCharacter === correctCharacter) {
-                correctKeystrokes++;
-            } else {
-                mistakes++;
-                wrongKeystrokes++;
-            }
-        }
-
-        updateLiveResults();
-    }
-
-});
-
-
-// -----------------------------------------
-// PREVENT MOUSE EDITING
-// -----------------------------------------
-
-typingBox.addEventListener("mousedown", function () {
-
-    if (typingBox.value.length > 0) {
-        typingBox.setSelectionRange(
-            typingBox.value.length,
-            typingBox.value.length
-        );
-    }
-
-});
-
-
-typingBox.addEventListener("click", function () {
-
-    typingBox.setSelectionRange(
-        typingBox.value.length,
-        typingBox.value.length
-    );
-
-});
-
-
-typingBox.addEventListener("select", function () {
-
-    typingBox.setSelectionRange(
-        typingBox.value.length,
-        typingBox.value.length
-    );
-
-});
-
-
-// -----------------------------------------
-// BLOCK RIGHT CLICK
-// -----------------------------------------
-
-document.addEventListener("contextmenu", function (event) {
-
-    event.preventDefault();
-
-});
-
-
-// -----------------------------------------
-// BLOCK COPY / CUT / PASTE
-// -----------------------------------------
-
-document.addEventListener("copy", function (event) {
-    event.preventDefault();
-});
-
-document.addEventListener("cut", function (event) {
-    event.preventDefault();
-});
-
-document.addEventListener("paste", function (event) {
-    event.preventDefault();
-});
-
-
-// -----------------------------------------
+// ========================================
 // LIVE RESULTS
-// -----------------------------------------
+// ========================================
 
 function updateLiveResults() {
 
     const typedText = typingBox.value;
 
-    const words = typedText.trim() === ""
-        ? 0
-        : typedText.trim().split(/\s+/).length;
+    typedKeystrokes = typedText.length;
 
+    const result = calculateMistakes();
 
-    const accuracy = keystrokes === 0
-        ? 100
-        : (correctKeystrokes / keystrokes) * 100;
+    mistakes = result.wrong;
+    correctKeystrokes = result.correct;
 
+    wrongKeystrokes = mistakes;
 
-    const elapsedSeconds = 600 - timeLeft;
+    const typedWords = getTypedWords();
 
-    let speed = 0;
+    let accuracy = 100;
 
-    if (elapsedSeconds > 0) {
+    if (typedKeystrokes > 0) {
 
-        speed =
-            (words / elapsedSeconds) * 60;
+        accuracy =
+            (correctKeystrokes / typedKeystrokes) * 100;
 
     }
 
+    const elapsedSeconds =
+        Math.max(1, 600 - timeLeft);
 
-    mistakesElement.textContent = mistakes;
+    const speed =
+        (typedWords / elapsedSeconds) * 60;
 
-    keystrokesElement.textContent = keystrokes;
 
-    wordsElement.textContent = words;
+    mistakesElement.textContent =
+        mistakes;
+
+    keystrokesElement.textContent =
+        typedKeystrokes;
+
+    wordsElement.textContent =
+        typedWords;
 
     accuracyElement.textContent =
         accuracy.toFixed(2) + "%";
 
     speedElement.textContent =
         speed.toFixed(2) + " WPM";
-
 }
 
 
-// -----------------------------------------
-// FINISH TEST
-// -----------------------------------------
+// ========================================
+// KEYBOARD RESTRICTIONS
+// ========================================
 
-finishBtn.addEventListener("click", function () {
+typingBox.addEventListener("keydown", function(event) {
+
+    if (testFinished) {
+
+        event.preventDefault();
+        return;
+
+    }
+
+
+    // Start timer
+    startTimer();
+
+
+    // Backspace
+    if (event.key === "Backspace") {
+
+        event.preventDefault();
+        return;
+
+    }
+
+
+    // Delete
+    if (event.key === "Delete") {
+
+        event.preventDefault();
+        return;
+
+    }
+
+
+    // Arrow keys
+    if (
+        event.key === "ArrowLeft" ||
+        event.key === "ArrowRight" ||
+        event.key === "ArrowUp" ||
+        event.key === "ArrowDown"
+    ) {
+
+        event.preventDefault();
+        return;
+
+    }
+
+
+    // Home / End
+    if (
+        event.key === "Home" ||
+        event.key === "End" ||
+        event.key === "PageUp" ||
+        event.key === "PageDown"
+    ) {
+
+        event.preventDefault();
+        return;
+
+    }
+
+
+    // Ctrl / Command shortcuts
+    if (
+        event.ctrlKey ||
+        event.metaKey
+    ) {
+
+        event.preventDefault();
+        return;
+
+    }
+
+});
+
+
+// ========================================
+// MOUSE RESTRICTIONS
+// ========================================
+
+typingBox.addEventListener("mousedown", function() {
+
+    setTimeout(function() {
+
+        typingBox.setSelectionRange(
+            typingBox.value.length,
+            typingBox.value.length
+        );
+
+    }, 0);
+
+});
+
+
+typingBox.addEventListener("click", function() {
+
+    typingBox.setSelectionRange(
+        typingBox.value.length,
+        typingBox.value.length
+    );
+
+});
+
+
+typingBox.addEventListener("select", function() {
+
+    typingBox.setSelectionRange(
+        typingBox.value.length,
+        typingBox.value.length
+    );
+
+});
+
+
+// ========================================
+// BLOCK RIGHT CLICK
+// ========================================
+
+document.addEventListener("contextmenu", function(event) {
+
+    event.preventDefault();
+
+});
+
+
+// ========================================
+// BLOCK COPY / CUT / PASTE
+// ========================================
+
+document.addEventListener("copy", function(event) {
+
+    event.preventDefault();
+
+});
+
+document.addEventListener("cut", function(event) {
+
+    event.preventDefault();
+
+});
+
+document.addEventListener("paste", function(event) {
+
+    event.preventDefault();
+
+});
+
+
+// ========================================
+// FINISH TEST
+// ========================================
+
+finishBtn.addEventListener("click", function() {
 
     finishTest();
 
@@ -323,40 +374,62 @@ function finishTest() {
     finishBtn.disabled = true;
 
 
+    // Final calculation
+    updateLiveResults();
+
+
+    const typedWords = getTypedWords();
+
     const typedText = typingBox.value;
 
-    const words = typedText.trim() === ""
-        ? 0
-        : typedText.trim().split(/\s+/).length;
+    const typedKeystrokes = typedText.length;
 
 
-    const accuracy = keystrokes === 0
-        ? 100
-        : (correctKeystrokes / keystrokes) * 100;
+    const result = calculateMistakes();
+
+    const finalMistakeCount = result.wrong;
+
+    const finalCorrectCount = result.correct;
 
 
+    const finalWrongCount =
+        finalMistakeCount;
+
+
+    // Accuracy
+    let accuracy = 100;
+
+    if (typedKeystrokes > 0) {
+
+        accuracy =
+            (finalCorrectCount / typedKeystrokes) * 100;
+
+    }
+
+
+    // Speed
     const elapsedSeconds =
         Math.max(1, 600 - timeLeft);
 
-
     const speed =
-        (words / elapsedSeconds) * 60;
+        (typedWords / elapsedSeconds) * 60;
 
 
-    // -----------------------------------------
+    // ====================================
     // MARKS
-    // -----------------------------------------
+    // ====================================
 
-    let marks = 20 - (mistakes * 0.25);
+    let marks =
+        20 - (finalMistakeCount * 0.25);
 
     if (marks < 0) {
         marks = 0;
     }
 
 
-    // -----------------------------------------
-    // SHOW RESULT
-    // -----------------------------------------
+    // ====================================
+    // FINAL RESULT
+    // ====================================
 
     finalSpeed.textContent =
         speed.toFixed(2);
@@ -365,22 +438,29 @@ function finishTest() {
         accuracy.toFixed(2);
 
     finalMistakes.textContent =
-        mistakes;
+        finalMistakeCount;
 
     finalWords.textContent =
-        words;
+        typedWords;
 
     finalKeystrokes.textContent =
-        keystrokes;
+        typedKeystrokes;
 
     finalCorrect.textContent =
-        correctKeystrokes;
+        finalCorrectCount;
 
     finalWrong.textContent =
-        wrongKeystrokes;
+        finalWrongCount;
 
     finalMarks.textContent =
         marks.toFixed(2);
+
+
+    // ====================================
+    // ADD PASSAGE STATISTICS TO RESULT
+    // ====================================
+
+    addPassageStatistics();
 
 
     resultBox.style.display = "block";
@@ -392,9 +472,77 @@ function finishTest() {
 }
 
 
-// -----------------------------------------
-// INITIAL TIMER
-// -----------------------------------------
+// ========================================
+// SHOW PASSAGE STATISTICS
+// ========================================
+
+function addPassageStatistics() {
+
+    let passageStats =
+        document.getElementById("passageStats");
+
+
+    if (!passageStats) {
+
+        passageStats =
+            document.createElement("div");
+
+        passageStats.id =
+            "passageStats";
+
+        passageStats.style.marginTop =
+            "20px";
+
+        passageStats.style.padding =
+            "15px";
+
+        passageStats.style.background =
+            "#f5f5f5";
+
+        passageStats.style.borderRadius =
+            "8px";
+
+        resultBox.insertBefore(
+            passageStats,
+            resultBox.firstChild.nextSibling
+        );
+
+    }
+
+
+    passageStats.innerHTML = `
+
+        <h3>Passage Statistics</h3>
+
+        <p>
+            Passage Words:
+            <strong>${passageWords}</strong>
+        </p>
+
+        <p>
+            Passage Keystrokes:
+            <strong>${passageKeystrokes}</strong>
+        </p>
+
+        <p>
+            Typed Words:
+            <strong>${getTypedWords()}</strong>
+        </p>
+
+        <p>
+            Typed Keystrokes:
+            <strong>${typingBox.value.length}</strong>
+        </p>
+
+    `;
+
+}
+
+
+// ========================================
+// INITIALIZE
+// ========================================
 
 updateTimer();
+
 updateLiveResults();
