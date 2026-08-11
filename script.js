@@ -20,29 +20,14 @@ const finalCorrect = document.getElementById("finalCorrect");
 const finalWrong = document.getElementById("finalWrong");
 const finalMarks = document.getElementById("finalMarks");
 
-
-// ==========================================
-// ORIGINAL PASSAGE
-// ==========================================
-
 const passage = passageElement.innerText.trim();
-
-
-// ==========================================
-// PASSAGE STATISTICS
-// ==========================================
 
 const passageWords = passage
     .split(/\s+/)
-    .filter(Boolean)
-    .length;
+    .filter(Boolean);
 
+const passageWordCount = passageWords.length;
 const passageKeystrokes = passage.length;
-
-
-// ==========================================
-// TEST VARIABLES
-// ==========================================
 
 let timeLeft = 600;
 let timerStarted = false;
@@ -51,143 +36,18 @@ let timerInterval = null;
 
 
 // ==========================================
-// TOKENIZER
+// NORMALIZE WORD
 // ==========================================
 
-function tokenize(text) {
-
-    const tokens = [];
-
-    const regex = /\s+|[A-Za-z0-9]+|[^A-Za-z0-9\s]/g;
-
-    let match;
-
-    while ((match = regex.exec(text)) !== null) {
-
-        const value = match[0];
-
-        let type;
-
-        if (/^\s+$/.test(value)) {
-            type = "space";
-        }
-        else if (/^[A-Za-z0-9]+$/.test(value)) {
-            type = "word";
-        }
-        else {
-            type = "punctuation";
-        }
-
-        tokens.push({
-            value: value,
-            type: type
-        });
-    }
-
-    return tokens;
+function normalizeWord(word) {
+    return word
+        .toLowerCase()
+        .replace(/[.,!?;:"'()[\]{}]/g, "");
 }
 
 
 // ==========================================
-// TOKEN COMPARISON
-// ==========================================
-
-function compareTokens(original, typed) {
-
-    const a = tokenize(original);
-    const b = tokenize(typed);
-
-    const rows = a.length + 1;
-    const cols = b.length + 1;
-
-    const dp = Array.from(
-        { length: rows },
-        () => Array(cols).fill(0)
-    );
-
-    for (let i = 0; i < rows; i++) {
-        dp[i][0] = i;
-    }
-
-    for (let j = 0; j < cols; j++) {
-        dp[0][j] = j;
-    }
-
-
-    for (let i = 1; i < rows; i++) {
-
-        for (let j = 1; j < cols; j++) {
-
-            const originalToken = a[i - 1];
-            const typedToken = b[j - 1];
-
-            let substitutionCost;
-
-
-            // Exact same token
-            if (
-                originalToken.type === typedToken.type &&
-                originalToken.value === typedToken.value
-            ) {
-
-                substitutionCost = 0;
-
-            }
-
-            // Two words: wrong word = 1 mistake
-            else if (
-                originalToken.type === "word" &&
-                typedToken.type === "word"
-            ) {
-
-                substitutionCost = 1;
-
-            }
-
-            // Spaces: different space = 1 mistake
-            else if (
-                originalToken.type === "space" &&
-                typedToken.type === "space"
-            ) {
-
-                substitutionCost = 1;
-
-            }
-
-            // Punctuation difference = 1
-            else {
-
-                substitutionCost = 1;
-
-            }
-
-
-            const replace =
-                dp[i - 1][j - 1] +
-                substitutionCost;
-
-            const deleteToken =
-                dp[i - 1][j] + 1;
-
-            const insertToken =
-                dp[i][j - 1] + 1;
-
-
-            dp[i][j] = Math.min(
-                replace,
-                deleteToken,
-                insertToken
-            );
-        }
-    }
-
-
-    return dp[a.length][b.length];
-}
-
-
-// ==========================================
-// TYPED WORD COUNT
+// TOKENIZE TYPED TEXT
 // ==========================================
 
 function getTypedWords() {
@@ -195,13 +55,212 @@ function getTypedWords() {
     const text = typingBox.value.trim();
 
     if (text === "") {
+        return [];
+    }
+
+    return text.split(/\s+/).filter(Boolean);
+}
+
+
+// ==========================================
+// WORD COMPARISON
+// ==========================================
+
+function compareWords(originalWords, typedWords) {
+
+    const n = originalWords.length;
+    const m = typedWords.length;
+
+    const dp = Array.from(
+        { length: n + 1 },
+        () => Array(m + 1).fill(0)
+    );
+
+    for (let i = 0; i <= n; i++) {
+        dp[i][0] = i;
+    }
+
+    for (let j = 0; j <= m; j++) {
+        dp[0][j] = j;
+    }
+
+    for (let i = 1; i <= n; i++) {
+
+        for (let j = 1; j <= m; j++) {
+
+            const original = normalizeWord(originalWords[i - 1]);
+            const typed = normalizeWord(typedWords[j - 1]);
+
+            const cost =
+                original === typed ? 0 : 1;
+
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost
+            );
+        }
+    }
+
+    return dp[n][m];
+}
+
+
+// ==========================================
+// PUNCTUATION + SPACE CHECK
+// ==========================================
+
+function punctuationAndSpaceMistakes(
+    originalText,
+    typedText
+) {
+
+    let mistakes = 0;
+
+    const originalWords =
+        originalText.split(/\s+/).filter(Boolean);
+
+    const typedWords =
+        typedText.split(/\s+/).filter(Boolean);
+
+    const wordCount =
+        Math.min(
+            originalWords.length,
+            typedWords.length
+        );
+
+    for (let i = 0; i < wordCount; i++) {
+
+        const originalWord =
+            originalWords[i];
+
+        const typedWord =
+            typedWords[i];
+
+        const originalPunctuation =
+            originalWord.match(/[^A-Za-z0-9]+$/);
+
+        const typedPunctuation =
+            typedWord.match(/[^A-Za-z0-9]+$/);
+
+        const originalP =
+            originalPunctuation
+                ? originalPunctuation[0]
+                : "";
+
+        const typedP =
+            typedPunctuation
+                ? typedPunctuation[0]
+                : "";
+
+        if (originalP !== typedP) {
+            mistakes++;
+        }
+    }
+
+    // Check capitalization separately
+    for (let i = 0; i < wordCount; i++) {
+
+        const originalWord =
+            originalWords[i];
+
+        const typedWord =
+            typedWords[i];
+
+        const originalLetters =
+            originalWord.replace(
+                /[^A-Za-z0-9]/g,
+                ""
+            );
+
+        const typedLetters =
+            typedWord.replace(
+                /[^A-Za-z0-9]/g,
+                ""
+            );
+
+        if (
+            originalLetters.toLowerCase() ===
+            typedLetters.toLowerCase() &&
+            originalLetters !== typedLetters
+        ) {
+            mistakes++;
+        }
+    }
+
+    return mistakes;
+}
+
+
+// ==========================================
+// TOTAL MISTAKES
+// ==========================================
+
+function calculateMistakes() {
+
+    const typedText = typingBox.value;
+
+    const typedWords = getTypedWords();
+
+    // Word-level comparison
+    const wordMistakes =
+        compareWords(
+            passageWords,
+            typedWords
+        );
+
+    // Punctuation/capitalization
+    const punctuationMistakes =
+        punctuationAndSpaceMistakes(
+            passage,
+            typedText
+        );
+
+    // Extra / missing spaces
+    let spaceMistakes = 0;
+
+    const originalSpaceCount =
+        (passage.match(/ /g) || []).length;
+
+    const typedSpaceCount =
+        (typedText.match(/ /g) || []).length;
+
+    spaceMistakes =
+        Math.abs(
+            originalSpaceCount -
+            typedSpaceCount
+        );
+
+    /*
+       Avoid double counting too much:
+       space errors are counted separately,
+       but the word alignment remains the main
+       source of word mistakes.
+    */
+
+    const totalMistakes =
+        wordMistakes +
+        punctuationMistakes +
+        spaceMistakes;
+
+    return Math.max(0, totalMistakes);
+}
+
+
+// ==========================================
+// MARKS
+// ==========================================
+
+function calculateMarks(mistakes) {
+
+    if (mistakes >= 80) {
         return 0;
     }
 
-    return text
-        .split(/\s+/)
-        .filter(Boolean)
-        .length;
+    const marks =
+        20 - (mistakes * 0.25);
+
+    return Math.max(0, marks);
 }
 
 
@@ -211,8 +270,11 @@ function getTypedWords() {
 
 function updateTimer() {
 
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
+    const minutes =
+        Math.floor(timeLeft / 60);
+
+    const seconds =
+        timeLeft % 60;
 
     timerElement.textContent =
         String(minutes).padStart(2, "0") +
@@ -223,71 +285,52 @@ function updateTimer() {
 
 function startTimer() {
 
-    if (timerStarted || testFinished) {
+    if (
+        timerStarted ||
+        testFinished
+    ) {
         return;
     }
 
     timerStarted = true;
 
-    timerInterval = setInterval(function () {
+    timerInterval =
+        setInterval(function() {
 
-        if (timeLeft <= 0) {
+            if (timeLeft <= 0) {
 
-            finishTest();
+                finishTest();
 
-            return;
-        }
+                return;
+            }
 
-        timeLeft--;
+            timeLeft--;
 
-        updateTimer();
+            updateTimer();
 
-        updateLiveResults();
+            updateLiveResults();
 
-    }, 1000);
+        }, 1000);
 }
 
 
 // ==========================================
-// LIVE CALCULATION
+// LIVE RESULT
 // ==========================================
 
 function updateLiveResults() {
 
-    const typedText = typingBox.value;
-
-    const typedKeystrokes =
-        typedText.length;
+    const typedText =
+        typingBox.value;
 
     const typedWords =
         getTypedWords();
 
+    const typedKeystrokes =
+        typedText.length;
 
     const mistakes =
-        compareTokens(
-            passage,
-            typedText
-        );
-
-
-    // Number of matching keystrokes approximation
-    const correctKeystrokes =
-        Math.max(
-            0,
-            typedKeystrokes - mistakes
-        );
-
-
-    let accuracy = 100;
-
-    if (typedKeystrokes > 0) {
-
-        accuracy =
-            (correctKeystrokes /
-            typedKeystrokes) * 100;
-
-    }
-
+        calculateMistakes();
 
     const elapsedSeconds =
         Math.max(
@@ -295,11 +338,29 @@ function updateLiveResults() {
             600 - timeLeft
         );
 
-
     const speed =
-        (typedWords /
+        (typedWords.length /
         elapsedSeconds) * 60;
 
+    /*
+       Accuracy is based on words,
+       not raw keystrokes.
+    */
+
+    let correctWords =
+        Math.max(
+            0,
+            typedWords.length - mistakes
+        );
+
+    let accuracy = 100;
+
+    if (typedWords.length > 0) {
+
+        accuracy =
+            (correctWords /
+            typedWords.length) * 100;
+    }
 
     mistakesElement.textContent =
         mistakes;
@@ -308,7 +369,7 @@ function updateLiveResults() {
         typedKeystrokes;
 
     wordsElement.textContent =
-        typedWords;
+        typedWords.length;
 
     accuracyElement.textContent =
         accuracy.toFixed(2) + "%";
@@ -333,9 +394,7 @@ typingBox.addEventListener(
             return;
         }
 
-
         startTimer();
-
 
         // Backspace OFF
         if (event.key === "Backspace") {
@@ -345,7 +404,6 @@ typingBox.addEventListener(
             return;
         }
 
-
         // Delete OFF
         if (event.key === "Delete") {
 
@@ -353,7 +411,6 @@ typingBox.addEventListener(
 
             return;
         }
-
 
         // Arrow keys OFF
         if (
@@ -368,13 +425,10 @@ typingBox.addEventListener(
             return;
         }
 
-
         // Home / End OFF
         if (
             event.key === "Home" ||
-            event.key === "End" ||
-            event.key === "PageUp" ||
-            event.key === "PageDown"
+            event.key === "End"
         ) {
 
             event.preventDefault();
@@ -382,8 +436,7 @@ typingBox.addEventListener(
             return;
         }
 
-
-        // Ctrl / Command shortcuts OFF
+        // Copy / Paste / Cut / Undo OFF
         if (
             event.ctrlKey ||
             event.metaKey
@@ -393,13 +446,12 @@ typingBox.addEventListener(
 
             return;
         }
-
     }
 );
 
 
 // ==========================================
-// MOUSE EDITING / SELECTION OFF
+// MOUSE SELECTION OFF
 // ==========================================
 
 typingBox.addEventListener(
@@ -414,7 +466,6 @@ typingBox.addEventListener(
             );
 
         }, 0);
-
     }
 );
 
@@ -427,7 +478,6 @@ typingBox.addEventListener(
             typingBox.value.length,
             typingBox.value.length
         );
-
     }
 );
 
@@ -440,21 +490,6 @@ typingBox.addEventListener(
             typingBox.value.length,
             typingBox.value.length
         );
-
-    }
-);
-
-
-// ==========================================
-// RIGHT CLICK OFF
-// ==========================================
-
-document.addEventListener(
-    "contextmenu",
-    function(event) {
-
-        event.preventDefault();
-
     }
 );
 
@@ -466,29 +501,28 @@ document.addEventListener(
 document.addEventListener(
     "copy",
     function(event) {
-
         event.preventDefault();
-
     }
 );
-
 
 document.addEventListener(
     "cut",
     function(event) {
-
         event.preventDefault();
-
     }
 );
-
 
 document.addEventListener(
     "paste",
     function(event) {
-
         event.preventDefault();
+    }
+);
 
+document.addEventListener(
+    "contextmenu",
+    function(event) {
+        event.preventDefault();
     }
 );
 
@@ -499,11 +533,7 @@ document.addEventListener(
 
 finishBtn.addEventListener(
     "click",
-    function() {
-
-        finishTest();
-
-    }
+    finishTest
 );
 
 
@@ -529,41 +559,36 @@ function finishTest() {
     const typedText =
         typingBox.value;
 
-
     const typedWords =
         getTypedWords();
-
 
     const typedKeystrokes =
         typedText.length;
 
-
     const mistakes =
-        compareTokens(
-            passage,
-            typedText
-        );
+        calculateMistakes();
 
 
-    const correctKeystrokes =
+    // Marks
+    const marks =
+        calculateMarks(mistakes);
+
+
+    // Correct words approximation
+    const correctWords =
         Math.max(
             0,
-            typedKeystrokes - mistakes
+            typedWords.length - mistakes
         );
-
-
-    const wrongKeystrokes =
-        mistakes;
 
 
     let accuracy = 100;
 
-    if (typedKeystrokes > 0) {
+    if (typedWords.length > 0) {
 
         accuracy =
-            (correctKeystrokes /
-            typedKeystrokes) * 100;
-
+            (correctWords /
+            typedWords.length) * 100;
     }
 
 
@@ -575,94 +600,73 @@ function finishTest() {
 
 
     const speed =
-        (typedWords /
+        (typedWords.length /
         elapsedSeconds) * 60;
 
 
     // ======================================
-    // MARK CALCULATION
-    // ======================================
-
-    let marks =
-        20 - (mistakes * 0.25);
-
-
-    if (marks < 0) {
-        marks = 0;
-    }
-
-
-    // ======================================
-    // DISPLAY RESULT
+    // SHOW RESULT
     // ======================================
 
     finalSpeed.textContent =
         speed.toFixed(2);
 
-
     finalAccuracy.textContent =
         accuracy.toFixed(2);
-
 
     finalMistakes.textContent =
         mistakes;
 
-
     finalWords.textContent =
-        typedWords;
-
+        typedWords.length;
 
     finalKeystrokes.textContent =
         typedKeystrokes;
 
-
     finalCorrect.textContent =
-        correctKeystrokes;
-
+        correctWords;
 
     finalWrong.textContent =
-        wrongKeystrokes;
-
+        mistakes;
 
     finalMarks.textContent =
         marks.toFixed(2);
 
 
-    // ======================================
-    // PASSAGE STATISTICS
-    // ======================================
-
     showPassageStatistics(
-        typedWords,
-        typedKeystrokes
+        typedWords.length,
+        typedKeystrokes,
+        mistakes
     );
+
+
+    // PASS / FAIL
+    showPassFail(mistakes);
 
 
     resultBox.style.display =
         "block";
 
-
     resultBox.scrollIntoView({
         behavior: "smooth"
     });
-
 }
 
 
 // ==========================================
-// SHOW PASSAGE STATISTICS
+// PASSAGE STATISTICS
 // ==========================================
 
 function showPassageStatistics(
     typedWords,
-    typedKeystrokes
+    typedKeystrokes,
+    mistakes
 ) {
 
     let box =
         document.getElementById(
             "passageStats"
         );
-
 
     if (!box) {
 
@@ -684,11 +688,7 @@ function showPassageStatistics(
         box.style.borderRadius =
             "8px";
 
-        resultBox.insertBefore(
-            box,
-            resultBox.children[1]
-        );
-
+        resultBox.appendChild(box);
     }
 
 
@@ -698,7 +698,7 @@ function showPassageStatistics(
 
         <p>
             Passage Words:
-            <strong>${passageWords}</strong>
+            <strong>${passageWordCount}</strong>
         </p>
 
         <p>
@@ -716,7 +716,48 @@ function showPassageStatistics(
             <strong>${typedKeystrokes}</strong>
         </p>
 
+        <p>
+            Total Mistakes:
+            <strong>${mistakes}</strong>
+        </p>
+
     `;
+}
+
+
+// ==========================================
+// PASS / FAIL
+// ==========================================
+
+function showPassFail(mistakes) {
+
+    let status =
+        document.getElementById(
+            "testStatus"
+        );
+
+    if (!status) {
+
+        status =
+            document.createElement("h2");
+
+        status.id =
+            "testStatus";
+
+        resultBox.appendChild(status);
+    }
+
+
+    if (mistakes >= 80) {
+
+        status.textContent =
+            "FAIL";
+
+    } else {
+
+        status.textContent =
+            "PASS";
+    }
 }
 
 
