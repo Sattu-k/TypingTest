@@ -3,44 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Typing Test</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <div class="header">
+
         <h1>Typing Test</h1>
 
         <div class="timer">
-            Time: <span id="timer">10:00</span>
+            Time:
+            <span id="timer">10:00</span>
         </div>
+
     </div>
+
+
+    <!-- PASSAGE SELECTOR -->
+
+    <div class="passage-selector">
+
+        <label for="passageSelect">
+            Select Passage:
+        </label>
+
+        <select id="passageSelect">
+
+            <option value="0">PASSAGE-1</option>
+            <option value="1">PASSAGE-2</option>
+            <option value="2">PASSAGE-3</option>
+            <option value="3">PASSAGE-4</option>
+            <option value="4">PASSAGE-5</option>
+            <option value="5">PASSAGE-6</option>
+            <option value="6">PASSAGE-7</option>
+            <option value="7">PASSAGE-8</option>
+            <option value="8">PASSAGE-9</option>
+            <option value="9">PASSAGE-10</option>
+
+        </select>
+
+    </div>
+
 
     <div class="test-container">
 
-        <!-- LEFT SIDE: PASSAGE -->
+
+        <!-- LEFT SIDE -->
+
         <div class="passage-section">
-            <h2>Passage</h2>
 
-            <div id="passage" class="passage">
-Typing practice is a useful way to improve speed, accuracy, concentration, and confidence while working on a computer. A good typing exercise should encourage the learner to focus on the text, maintain a steady rhythm, and avoid unnecessary pauses. The goal is not simply to type quickly, but to type correctly and consistently. Regular practice can gradually improve finger movement, hand coordination, and familiarity with common words and punctuation.
+            <h2 id="passageTitle">
+                PASSAGE-1
+            </h2>
 
-In a formal typing test, the passage should be read carefully before the test begins. The learner should sit comfortably, keep both hands in the correct position, and look at the passage rather than the keyboard whenever possible. Each character should be entered in the same order as it appears in the original passage. If an error occurs, the learner should continue typing without stopping. This method makes it easier to measure typing accuracy and speed.
+            <div
+                id="passage"
+                class="passage"
+            ></div>
 
-A timed exercise also teaches the importance of concentration. When the clock is running, the learner must balance speed with accuracy. Typing too quickly may create more mistakes, while typing too slowly may reduce the speed score. A steady pace is usually more effective. The learner should remain calm, pay attention to spaces and punctuation, and avoid being distracted by the timer.
-
-After the test, useful results can include total words typed, total keystrokes, correct keystrokes, incorrect keystrokes, typing speed, accuracy percentage, and the number of mistakes. A marking system can also make the result easy to understand. For example, a test may begin with twenty marks, and a small fraction of a mark may be deducted for every mistake. This gives the learner a reason to improve both speed and accuracy.
-
-Consistent practice is more valuable than occasional long sessions. Spending a few minutes each day can build better habits over time. Learners can begin with simple passages and gradually move to more difficult material containing longer sentences, numbers, punctuation, and unfamiliar words. The important thing is to practice carefully and review the result after each attempt.
-
-A designed typing test should be fair, simple, and easy to use. It should provide the same passage to every learner, use the same time limit, and calculate results using the same rules. Clear instructions help prevent confusion and allow learners to concentrate on the task. With practice and honest results, a typing test can become a useful tool for measuring progress and developing efficient computer skills.
-            </div>
         </div>
 
-        <!-- RIGHT SIDE: TYPING -->
+
+
+        <!-- RIGHT SIDE -->
+
         <div class="typing-section">
-            <h2>Type Here</h2>
+
+            <h2>
+                Type Here
+            </h2>
+
 
             <textarea
                 id="typingBox"
@@ -48,66 +84,322 @@ A designed typing test should be fair, simple, and easy to use. It should provid
                 autocomplete="off"
                 autocorrect="off"
                 autocapitalize="off"
-                spellcheck="false">
-            </textarea>
+                spellcheck="false"
+            ></textarea>
+
 
             <div class="live-results">
-                <div>
-                    <strong>Mistakes:</strong>
-                    <span id="mistakes">0</span>
-                </div>
 
                 <div>
-                    <strong>Keystrokes:</strong>
-                    <span id="keystrokes">0</span>
+                    <strong>
+                        Mistakes:
+                    </strong>
+
+                    <span id="mistakes">
+                        0
+                    </span>
                 </div>
 
-                <div>
-                    <strong>Words:</strong>
-                    <span id="words">0</span>
-                </div>
 
                 <div>
-                    <strong>Accuracy:</strong>
-                    <span id="accuracy">100%</span>
+                    <strong>
+                        Keystrokes:
+                    </strong>
+
+                    <span id="keystrokes">
+                        0
+                    </span>
                 </div>
 
+
                 <div>
-                    <strong>Speed:</strong>
-                    <span id="speed">0 WPM</span>
+                    <strong>
+                        Words:
+                    </strong>
+
+                    <span id="words">
+                        0
+                    </span>
                 </div>
+
+
+                <div>
+                    <strong>
+                        Accuracy:
+                    </strong>
+
+                    <span id="accuracy">
+                        100%
+                    </span>
+                </div>
+
+
+                <div>
+                    <strong>
+                        Speed:
+                    </strong>
+
+                    <span id="speed">
+                        0 WPM
+                    </span>
+                </div>
+
             </div>
 
-            <button id="finishBtn">Finish Test</button>
+
+            <button id="finishBtn">
+                Finish Test
+            </button>
+
         </div>
 
     </div>
 
+
+
     <!-- RESULT -->
-    <div id="result" class="result-box" style="display:none;">
 
-        <h2>Test Result</h2>
+    <div
+        id="result"
+        class="result-box"
+        style="display:none;"
+    >
 
-        <p>Speed: <strong><span id="finalSpeed">0</span> WPM</strong></p>
+        <h2>
+            Test Result
+        </h2>
 
-        <p>Accuracy: <strong><span id="finalAccuracy">0</span>%</strong></p>
 
-        <p>Mistakes: <strong><span id="finalMistakes">0</span></strong></p>
+        <p>
+            Speed:
+            <strong>
+                <span id="finalSpeed">0</span>
+                WPM
+            </strong>
+        </p>
 
-        <p>Total Typed Words: <strong><span id="finalWords">0</span></strong></p>
 
-        <p>Total Keystrokes: <strong><span id="finalKeystrokes">0</span></strong></p>
+        <p>
+            Accuracy:
+            <strong>
+                <span id="finalAccuracy">0</span>%
+            </strong>
+        </p>
 
-        <p>Correct Keystrokes: <strong><span id="finalCorrect">0</span></strong></p>
 
-        <p>Wrong Keystrokes: <strong><span id="finalWrong">0</span></strong></p>
+        <p>
+            Mistakes:
+            <strong>
+                <span id="finalMistakes">0</span>
+            </strong>
+        </p>
+
+
+        <p>
+            Passage Words:
+            <strong>
+                <span id="finalPassageWords">0</span>
+            </strong>
+        </p>
+
+
+        <p>
+            Total Typed Words:
+            <strong>
+                <span id="finalWords">0</span>
+            </strong>
+        </p>
+
+
+        <p>
+            Passage Keystrokes:
+            <strong>
+                <span id="finalPassageKeystrokes">0</span>
+            </strong>
+        </p>
+
+
+        <p>
+            Total Typed Keystrokes:
+            <strong>
+                <span id="finalKeystrokes">0</span>
+            </strong>
+        </p>
+
+
+        <p>
+            Correct Words:
+            <strong>
+                <span id="finalCorrect">0</span>
+            </strong>
+        </p>
+
+
+        <p>
+            Wrong Words:
+            <strong>
+                <span id="finalWrong">0</span>
+            </strong>
+        </p>
+
 
         <h2>
             Marks:
-            <span id="finalMarks">20.00</span> / 20
+            <span id="finalMarks">20.00</span>
+            / 20
         </h2>
 
+
+        <h2 id="testStatus"></h2>
+
     </div>
+
+
+
+    <!-- ========================================= -->
+    <!-- ALL 10 PASSAGES -->
+    <!-- ========================================= -->
+
+    <script>
+
+    const passages = [
+
+/* =====================================================
+   PASSAGE-1
+   ===================================================== */
+
+`Court proceedings are conducted within a formal and structured environment where justice is administered according to established legal principles. The courtroom serves as a place where disputes are examined carefully, and decisions are made based on facts, evidence, and applicable laws. Every individual present in the court, including the judge, lawyers, parties, and witnesses, has a defined role that contributes to the proper functioning of the legal process. At the start of a case, the court calls upon the parties involved to present their opening statements. The plaintiff in a civil case or the prosecution in a criminal case outlines the facts and explains the claims being made. The defendant is then given an opportunity to respond and present their side of the story. These opening statements provide a framework for the case and help the judge understand the key issues that need to be resolved. The presentation of evidence is one of the most important stages of a trial. Evidence may take various forms, including documents, records, physical objects, and witness testimony. Witnesses are required to take an oath, affirming that they will speak the truth. Lawyers from both sides examine and cross-examine witnesses to highlight relevant facts and challenge any inconsistencies. This process ensures that the court receives a complete and accurate account of the matter.
+
+The judge plays a crucial role in maintaining order and ensuring that all legal procedures are followed. The judge listens attentively to the arguments presented, evaluates the credibility of the evidence, and applies the law to the facts of the case. In some legal systems, a jury may also be involved in determining the outcome based on the evidence presented during the trial. After all arguments and evidence have been presented, the court proceeds to deliver its judgment. The decision may include penalties, compensation, or other legal remedies, depending on the nature of the case. If either party is dissatisfied with the judgment, they may have the right to file an appeal in a higher court. Courtroom conduct is expected to be respectful and disciplined at all times. Proper behavior ensures that proceedings are not disrupted and that justice is delivered fairly. Overall, court proceedings are designed to uphold the rule of law and protect the rights of individuals through a fair and transparent process. In conclusion, court proceedings are structured to ensure justice is served through careful examination of facts and adherence to the law.`,
+
+
+
+/* =====================================================
+   PASSAGE-2
+   ===================================================== */
+
+`On 18th August, 2025, at exactly 11:00 a.m., the Civil Court commenced proceedings in a matter relating to property ownership, contractual obligations, and alleged unlawful possession. The case, titled “Ramesh Kumar vs. Suresh Patil,” involved a dispute over a parcel of land situated in a semi-urban area, with an estimated value of ₹10,00,000 (Rupees Ten Lakhs only). Both parties were present in court, accompanied by their respective legal representatives; all required documents were submitted before the hearing formally began. As the presiding judge entered the courtroom, all individuals stood up as a mark of respect; silence was strictly maintained. After preliminary formalities, the court clerk announced, “Case No. 245/2025 is now called for hearing.” The plaintiff’s counsel initiated the arguments by stating, “My Lord, the defendant has unlawfully occupied the said property since 5th May, 2024, despite a valid written agreement dated 1st January, 2024; therefore, the plaintiff seeks immediate possession and compensation.” In response, the defense counsel argued, “The allegations are baseless, misleading, and unsupported by credible evidence; the possession is lawful, and no breach has occurred.”
+
+During the course of proceedings, several documents were produced, including registered sale deeds, tax receipts, identity proofs, photographs, and official correspondence (letters, emails, notices, etc.). Each document was examined carefully, verified, and marked as evidence. Witnesses were called one after another; prior to giving testimony, each witness took an oath: “I solemnly affirm that I shall speak the truth, the whole truth, and nothing but the truth.” Examination-in-chief was conducted first, followed by detailed and, at times, intense cross-examination. The judge posed several critical questions: “Was the agreement legally registered? Were all clauses clearly defined and understood? Did either party violate the stated conditions? Is there any proof of payment or transfer of ownership?” These questions helped clarify uncertainties and ensured that the matter was thoroughly examined from every legal perspective. The courtroom atmosphere remained serious, disciplined, and formal; no interruptions or irrelevant arguments were permitted. A brief recess was declared at 1:30 p.m.; proceedings resumed at 2:15 p.m. After hearing both parties at length, reviewing documents, and considering witness statements, the judge remarked, “The arguments presented require detailed consideration; therefore, judgment is reserved until 25th August, 2025.” Both parties acknowledged the statement, noted the next date, and signed the necessary court records before leaving the courtroom. In conclusion, court proceedings demand accuracy, discipline, and adherence to legal procedures. Proper documentation, correct use of dates, punctuation, and formal expressions ensure clarity in legal records.`,
+
+
+
+/* =====================================================
+   PASSAGE-3
+   ===================================================== */
+
+`On 18th August, 2025, at exactly 11:00 a.m., the District Court commenced proceedings in a civil matter titled “Ramesh Kumar vs. Suresh Patil,” relating to a dispute over property ownership, contractual obligations, and alleged unlawful possession of immovable property situated in Aurangabad district. The estimated value of the disputed property was ₹10,00,000. Both parties were present in the courtroom, accompanied by their respective advocates, and all necessary documents, including written statements, affidavits, and supporting records, had been duly filed before the commencement of the hearing. As the presiding judge entered the courtroom, all individuals present stood up as a mark of respect, and silence was maintained thereafter. The court clerk formally called out the case number: “Civil Suit No. 245/2025 is taken up for hearing.” The plaintiff’s counsel opened the arguments by stating, “My Lord, the defendant has unlawfully occupied the suit property since 5th May, 2024, despite a valid registered agreement executed on 1st January, 2024. Repeated notices dated 10th June, 2024, 15th July, 2024, and 20th August, 2024, were issued, but no compliance was made.” In response, the defense counsel submitted, “The allegations are false, misconceived, and devoid of merit. The defendant is in lawful possession of the property, and no breach of contract has occurred. The documents relied upon by the plaintiff are incomplete and cannot be treated as conclusive evidence.” During the proceedings, the court examined various documents, including the sale agreement, property tax receipts, bank transaction records, written correspondence (emails and legal notices), and site inspection reports. Witnesses were then called one by one, and each witness took an oath stating: “I solemnly affirm that I shall speak the truth, the whole truth, and nothing but the truth.” The examination-in-chief was conducted by the respective counsels, followed by detailed cross-examination aimed at testing the credibility, accuracy, and consistency of the statements made. The judge actively intervened at several stages and posed clarifying questions such as: “Was the agreement duly registered before the competent authority? Were the terms and conditions clearly understood by both parties? Is there any documentary proof of possession or transfer of ownership? Have any prior settlement attempts been made?” These questions were intended to ensure that all relevant facts were brought on record and properly evaluated.
+
+A short recess was declared at 1:30 p.m., and the proceedings resumed at 2:15 p.m. After hearing both parties at length, carefully examining the evidence, and considering the legal arguments presented, the court observed that the matter required further deliberation.`,
+
+
+
+/* =====================================================
+   PASSAGE-4
+   ===================================================== */
+
+`The Civil Court at Aurangabad heard the matter titled “Rameshwar Deshmukh vs. National Housing Developers and Others,” pertaining to specific performance of contract, breach of agreement, refund of consideration amount, and consequential reliefs arising out of a disputed real estate transaction. The plaintiff submitted that a legally binding agreement was executed between the parties for purchase of a residential flat in a proposed housing project developed by the defendant company, under clear terms regarding construction timeline, payment schedule, possession date, and amenities promised under the brochure and booking documents. It was contended that the plaintiff had paid a substantial portion of the consideration amount through banking channels, including advance booking charges, instalment payments, and additional service charges, all of which were duly acknowledged by the defendant. Despite repeated assurances, reminders, and formal legal notices issued through counsel, the defendant failed to complete construction within the stipulated time frame and did not deliver possession of the flat as agreed. The plaintiff alleged financial loss, mental agony, and deprivation of rightful ownership due to the prolonged delay and non-compliance.
+
+The defendant, represented by senior counsel, argued that the delay was not intentional but occurred due to regulatory approvals, shortage of construction materials, labor issues, and unforeseen financial constraints affecting the overall project. It was further submitted that the project was still under development and that partial compliance had been made with respect to construction milestones. The defendant denied any wilful breach and contended that the agreement contained clauses permitting reasonable extension of time under exceptional circumstances. The court meticulously examined documentary evidence, including the allotment letter, registered agreement for sale, payment receipts, bank transaction statements, brochures, correspondence exchanged between the parties, and project approval documents issued by competent authorities. Witnesses were examined under oath, and cross-examination focused on contractual obligations, representations made at the time of booking, and the actual progress of construction work on site. The presiding judge posed several legal questions regarding enforceability of contractual timelines, validity of force majeure claims, applicability of consumer protection principles, and whether the plaintiff had established readiness and willingness to perform contractual obligations. The court also considered principles of equity, fairness, restitution, and compensation in cases involving delayed possession of immovable property.
+
+After hearing detailed arguments from both sides, and upon careful evaluation of documentary and oral evidence, the court observed that the matter required strict interpretation of contractual obligations and assessment of deficiency in service.`,
+
+
+
+/* =====================================================
+   PASSAGE-5
+   ===================================================== */
+
+`It appears that there was no reply filed till February, 2026, except in one of the matters. However, it appears that the Hon’ble Apex Court recorded that since pleadings have been completed, this Court was requested to decide Writ Petition No.5647 of 2025 along with all other similarly placed writ petitions, which are stated to be 86 in numbers finally one way or the other within a period of four weeks. It appears that factually incorrect statement was made that pleadings have been completed. In fact in Writ Petition No.5647 of 2025, respondent No.1 filed its reply on 11/02/2026 and respondent No.2 filed its reply on 23/03/2026 after disposing of the Special Leave Petition. As such, in that petition also pleadings were not complete. In fact, in most of the matters pleadings were not complete and after passing of order by the Hon’ble Apex Court, the respondents itself filed their reply. Prior to that, there was neither reply nor any application for modification of order or challenge to the interim order. In spite of the order of Hon’ble Apex Court, the time was granted to the respondents to complete their pleadings and matters are taken up in group for decision. It is common contention of the petitioners that the action of the respondents-Authorities in withholding salary is arbitrary, illegal and unreasonable. It is also a common submission of the petitioners that without issuing any show cause notice and without initiating any departmental enquiry, the respondents-Authorities abruptly cancelled the approval orders and Shalarth IDs of the petitioners-employees. It amounts to punish the petitioners for no fault on their part. Being arbitrary, the impugned action is violative of Article 14 of the Constitution of India. It is further contention that petitioners employees are duly qualified and appointed after following the due procedure of law and only after they met the eligibility criteria, they were granted approval orders by the respondent-Education Officer (Primary), Zilla Parishad, Nagpur and Shalarth IDs were given to them, after due verification of their information. The petitioners had no role to play in issuance of Shalarth IDs and they are discharging their duties continuously. Thus, the action of denying salary to the petitioners is arbitrary and amounts to colourable exercise of power. The petitioners have no role insofar as allotment of Shalarth ID, except of supplying of information to the respondents, who are then responsible for verification of the information and allotment of Shalarth ID.`,
+
+
+
+/* =====================================================
+   PASSAGE-6
+   ===================================================== */
+
+`The Respondent is a Society formed by owners/occupiers of 826 residential premises, 19 shops and 24 stalls in 46 buildings constructed in the year 1957 on land belonging to Municipal Corporation of Greater Mumbai at Naigaon Cross Road, 26 Road, Scheme No. 57, Wadala, Mumbai - 400 034. Since the buildings of the proposed society were old and dilapidated, it decided to redevelop the same and accordingly invited offers from the developers. The proposed society selected Petitioner as a Developer. Accordingly, Development Agreement dated 22 January 2013 (first DA) was executed in favour of the Petitioner-Developer. The Society was registered on 5 April 2013. The Society applied to the Assistant Registrar of Co-operative Societies, F/N Ward for grant of ‘No Objection’ for redevelopment of the buildings and by letter dated 11 March 2014 ‘No Objection’ was granted in the Special General Body Meeting (SGBM). On 30 September 2014, the Society approved draft of the Development Agreement and accordingly Development Agreement and Power of Attorney were executed in favour of the Petitioner on 22 June 2015. According to the Petitioner, during 2015 to 2018, the sanction of scheme of redevelopment was withheld by the Planning Authority due to proposal for sanction of fresh Development Control Regulations. According to the Petitioner, the Society adopted a resolution in Annual General Meeting (AGM) dated 29 September 2018 to keep on hold the redevelopment proposal until new Development Control Regulations were notified. In the meantime, the society renegotiated the terms of redevelopment with the Petitioner, under which the Petitioner agreed to offer earnest money deposit of Rs.1 crore and to increase the size of Permanent Alternate Accommodations (PAA) from 600 sq.ft. to 700 sq.ft. and also agreed to pay corpus to each member of the Society. Accordingly, Development Agreement dated 22 April 2016 (second DA) was executed. According to the Petitioner, one Mr. Bhaskar G. Udawant adopted proceedings against the Respondent-Society under Section 21-A of the Maharashtra Co-operative Societies Act, 1960 seeking its de-registration, which delayed the process of redevelopment. The complaint was rejected on 11 May 2022. Petitioner cites the reasons of change in Development Regulations, litigations filed by members and occurrence of Covid-19 Pandemic as reasons for non-commencement of the project. The Respondent issued letters dated 3 December 2021, 7 March 2022 and 13 March 2022 calling upon the Petitioner to explain delay in redevelopment project, which was replied by the Petitioner on 25 April 2022.`,
+
+
+
+/* =====================================================
+   PASSAGE-7
+   ===================================================== */
+
+`Thereafter, in its meeting dated 3rd October 2025, the Managing Committee declared an Election Programme for Elections – 2025 providing for elections of its office bearers, namely President, four Vice Presidents and Honorary Secretary, for the period 2025–2027; election of five members of the Managing Committee for the term 2025–2028; and filling up one vacancy in the Managing Committee for the residual term of 2025 – 2027. On 31st October 2025, the Charity Commissioner passed an Administrative Order directing the Returning Officer (who was appointed to conduct the Elections – 2025 on 8th November 2025) to consider the membership list which was finalised at the AGM held on 27th September 2025 and thereafter scrutinised on 3rd October 2025. However, this order was subsequently quashed and set aside by this Court in Writ Petition No. 15028 of 2025 by an order dated 6th November 2025 on the ground that when Elections – 2025 were already declared on 3rd October 2025, there was no occasion for the Asiatic Society to file proceedings under Section 41A of the Maharashtra Public Trusts Act, 1950 (said Act) before the Charity Commissioner. However, whilst setting aside the said Administrative Order, this Court has expressly recorded that it has not decided the issue of membership in any manner and clarified that parties were at liberty to make their submissions in that regard in accordance with law. Thereafter, Elections – 2025, which were originally scheduled to be held on 8th November 2025 came to be postponed from time-to-time, primarily on account of issues relating to the non-finalisation of the voters’ list. Ultimately, at a meeting held on 20th February 2026, the Managing Committee proposed Elections – 2025 be held on 14th March 2026, in accordance with the Election Programme that was already announced on 3rd October 2025 and on the basis of nominations already completed prior to 8th November 2025. A notice to this effect was also issued to its members on 26th February 2026. In this notice, it was mentioned that “All members/Applicants should have paid their Membership Subscription on or before 26th November 2025 to be eligible In the meantime, it appears that in the session of the Maharashtra State Legislature that commenced on 23rd February 2026, certain questions were raised concerning the workings of the Asiatic Society, which resulted in Legislative Assembly Questions (LAQ) being sought from the Charity Commissioner on various issues including inter alia discrepancies in voters’ list, postponement of elections, missing books, etc.`,
+
+
+
+/* =====================================================
+   PASSAGE-8
+   ===================================================== */
+
+`The primary contention of the Insurance Company is that the accident occurred on 19th October, 1996, whereas the policy had expired on 26th August, 1996. It is his submission that on the date when the accident occurred, the policy had lapsed and, therefore, no liability can be imposed upon the Insurance Company On the above contention, the Tribunal had framed issue no.2 which has been elaborately discussed in paragraphs 16 to 27 of the impugned order. The Tribunal has given a finding that the Insurance Company has failed to prove that the vehicle was not insured with them, but on the contrary, the evidence led by the Insurance Company and the Regional Transport Office (RTO), which was produced by the applicant shows that the vehicle was validly insured. I do not propose to reproduce paragraphs 16 to 27, but suffice to say that the Tribunal has considered each and every evidence before giving its finding that the Insurance Company has failed to prove the vehicle was not insured. Nothing has been produced before me to show that these findings of facts given by the Tribunal are contrary to the material on record. I agree with the reasoning in paragraphs 16 to 27 of the impugned order for rejecting the contention of the Insurance Company that the vehicle was not insured. I, therefore, uphold the order of the Tribunal and dismiss the appeal filed by the Insurance Company. Before parting, I wish to express my views on the forum of adjudication of the appeal filed to challenge the orders passed by the Tribunal. The appeal under the Motor Vehicles Act, 1988 from the order of the Tribunal lies to the High Court. The provisions relating to compensation to be paid under the Motor Vehicles Act, 1988 is to ensure that the claimants get their compensation when there is a need which results into injury or death. It is known fact that the claimants do not get the compensation immediately on the date of the accident, but have to file their claim before the Tribunal. Because of the huge pendency, the Tribunal takes at least 5 to 7 years for disposing the original petition and even after disposing of the petition; the claimants do not see the colour of the compensation, since the orders passed by the Tribunal are subject to challenge by filing an appeal to the High Court. When the appeals are filed in the High Court, an interim application is made for withdrawing the amount which the Insurance Company deposits with the Tribunal. Generally, these applications are disposed of by permitting withdrawal of 50% of the amount.`,
+
+
+
+/* =====================================================
+   PASSAGE-9
+   ===================================================== */
+
+`When a Gas Turbine Engine is damaged due to an accident and the insured is required to get the Engine overhauled and raises a claim towards the overhauling expenses and the insurer sanctions only the expenses for accidental repairs, whether the dispute relating to non- payment of balance claim is a dispute of ‘quantum’ or dispute of ‘liability’ is the issue that this Court is tasked upon to decide in the present Petition. To paraphrase, whether it is permissible for the insurer to segregate the claim in respect of the damage to the Engine into ‘repairs claim’ and ‘overhaul claim’ and take a stand that mere payment for the former claim does not amount to acceptance of liability in respect of the latter claim, making the latter claim non-arbitrable? The issue arises in the light of typical clause in the Insurance Policy providing for arbitration only in respect of disputes involving quantum and not in respect of those for which the liability is not expressly admitted. Petitioner-Insurance Company has filed the present petition under Section 34 of the Arbitration and Conciliation Act, 1996 (Arbitration Act) challenging the arbitral Award dated 8 December 2023 passed by the learned sole Arbitrator. The Tribunal has treated the claim of the Respondent as a single indivisible claim and has held that since the claim is partially awarded, the dispute relates to ‘quantum’ and not to ‘liability’. The Tribunal has further held that the accident was the proximate cause of overhauling of the Gas Turbine Engine. By the impugned Award, the Tribunal has awarded a sum of Rs.41,98,12,970/- in favour of the Respondent along with simple interest @ 12% p.a. on the entire awarded amount from the date of the award. The Tribunal has also awarded costs of arbitration of Rs. 2 crores in favour of the Respondent. This is the second round of arbitration after the previous award by the Three Member Arbitral Tribunal was set aside by this Court. Petitioner is a public limited and nationalised general insurance company incorporated in the year 1938 under the Companies Act, 1913. Respondent, who was previously known as United Phosphorus Limited, is a Public Limited Company incorporated in the year 1985 and is engaged in the business of agrochemicals such as pesticides. Respondent is also a successor in interest of its erstwhile subsidiary of Search Chem Industries Ltd. (SCIL) which has merged into the Respondent.`,
+
+
+
+/* =====================================================
+   PASSAGE-10
+   ===================================================== */
+
+`The petitioners are the original borrowers and they have approached this Court challenging two orders dated 09.01.2026 passed by the Debts Recovery Tribunal-II, Mumbai (DRT), whereby Interim Application Nos.2524 of 2025 and 2526 of 2025 filed by them in pending Securitisation Application No.411 of 2025, have been rejected. It is the case of the petitioners that the DRT failed to appreciate the effect of pendency of a petition filed under Section 95 of the Insolvency and Bankruptcy Code, 2016 (IBC) before the National Company Law Tribunal, Mumbai (NCLT) and consequently, the existence of interim moratorium under Section 96 of the IBC. It is claimed that the applications were rejected by the impugned orders on irrelevant considerations. In this petition, the petitioners also moved an interim application seeking urgent interim relief, in the light of the fact that respondent No.1 – bank (secured creditor) had already proceeded under the provisions of the Securitisation and Reconstruction of Financial Assets and Enforcement of Security Interest Act, 2002 (Securitisation Act), as a consequence of which auction of the secured assets was conducted and sale certificate was issued in favour of respondent Nos.2 and 3. On 14.01.2026, this Court took into account the submissions made on behalf of the petitioners as well as respondent No.1 – bank, in the backdrop of the provisions of IBC and National Company Law Tribunal Rules, 2016 (NCLT Rules) and judgement of this Court in the case of Bank of Baroda vs. Union of India and another (2024 SCC OnLine Bom 3964). It was found that even if the interim moratorium could not have been triggered by mere filing of the petition on 09.07.2025 before the NCLT under Section 95 of the IBC, the documents on record demonstrated that the petition was indeed registered on 04.11.2025. On this basis, this Court found a prima facie case in favour of the petitioners regarding triggering of moratorium at least from 04.11.2025 and hence, limited interim relief of status quo was granted as on the said date. But, at the same time, this Court was of the opinion that the Registrar of NCLT ought to submit a report to this Court with regard to the manner in which the aforesaid petition filed before the NCLT on 09.07.2025 had been processed, to demonstrate as to whether it was in line with the directions issued by this Court in the aforesaid judgement in the case of Bank of Baroda vs. Union of India and another (supra).`
+
+    ];
+
+
+    // ==========================================
+    // PASSAGE SELECTION
+    // ==========================================
+
+    const passageSelect =
+        document.getElementById("passageSelect");
+
+    const passageBox =
+        document.getElementById("passage");
+
+    const passageTitle =
+        document.getElementById("passageTitle");
+
+
+    function loadPassage(index) {
+
+        passageBox.textContent =
+            passages[index];
+
+        passageTitle.textContent =
+            "PASSAGE-" + (index + 1);
+
+        document.title =
+            "Typing Test - Passage " +
+            (index + 1);
+
+    }
+
+
+    loadPassage(0);
+
+
+    passageSelect.addEventListener(
+        "change",
+        function() {
+
+            loadPassage(
+                Number(this.value)
+            );
+
+        }
+    );
+
+    </script>
+
 
     <script src="script.js"></script>
 
