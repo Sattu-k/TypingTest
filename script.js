@@ -1,10 +1,24 @@
-let timeLeft = 600;
+let currentPassage = 0;
+
+const TEST_TIME = 600; // 10 minutes
+
+let timeLeft = TEST_TIME;
 let timerInterval = null;
 let testStarted = false;
 let finished = false;
 
+
+// ================================
+// ELEMENTS
+// ================================
+
 const typingBox = document.getElementById("typingBox");
 const finishBtn = document.getElementById("finishBtn");
+
+const passageSelect = document.getElementById("passageSelect");
+const passageBox = document.getElementById("passage");
+const passageTitle = document.getElementById("passageTitle");
+
 const timerDisplay = document.getElementById("timer");
 
 const mistakesDisplay = document.getElementById("mistakes");
@@ -15,27 +29,71 @@ const speedDisplay = document.getElementById("speed");
 
 const resultBox = document.getElementById("result");
 
-function getPassage() {
-    const passage = document.getElementById("passage");
+const finalSpeed = document.getElementById("finalSpeed");
+const finalAccuracy = document.getElementById("finalAccuracy");
+const finalMistakes = document.getElementById("finalMistakes");
+const finalWords = document.getElementById("finalWords");
+const finalKeystrokes = document.getElementById("finalKeystrokes");
+const finalCorrect = document.getElementById("finalCorrect");
+const finalWrong = document.getElementById("finalWrong");
+const finalMarks = document.getElementById("finalMarks");
 
-    if (!passage) {
+const finalPassageWords =
+    document.getElementById("finalPassageWords");
+
+const finalPassageKeystrokes =
+    document.getElementById("finalPassageKeystrokes");
+
+const testStatus =
+    document.getElementById("testStatus");
+
+
+// ================================
+// GET CURRENT PASSAGE
+// ================================
+
+function getCurrentPassage() {
+
+    if (
+        typeof passages === "undefined" ||
+        !passages[currentPassage]
+    ) {
         return "";
     }
 
-    return passage.innerText.trim();
+    return passages[currentPassage];
 }
 
+
+// ================================
+// COUNT WORDS
+// ================================
+
 function countWords(text) {
-    if (!text.trim()) {
+
+    if (!text || !text.trim()) {
         return 0;
     }
 
-    return text.trim().split(/\s+/).filter(Boolean).length;
+    return text
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .length;
 }
 
-function updateTimer() {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
+
+// ================================
+// TIMER DISPLAY
+// ================================
+
+function updateTimerDisplay() {
+
+    const minutes =
+        Math.floor(timeLeft / 60);
+
+    const seconds =
+        timeLeft % 60;
 
     timerDisplay.textContent =
         String(minutes).padStart(2, "0") +
@@ -43,19 +101,27 @@ function updateTimer() {
         String(seconds).padStart(2, "0");
 }
 
+
+// ================================
+// START TIMER
+// ================================
+
 function startTimer() {
 
     if (timerInterval !== null) {
         return;
     }
 
-    timerInterval = setInterval(function () {
+    timerInterval = setInterval(() => {
 
-        timeLeft--;
+        if (timeLeft > 0) {
 
-        updateTimer();
+            timeLeft--;
 
-        updateLiveResults();
+            updateTimerDisplay();
+
+            updateLiveResults();
+        }
 
         if (timeLeft <= 0) {
 
@@ -69,33 +135,129 @@ function startTimer() {
     }, 1000);
 }
 
+
+// ================================
+// RESET TEST
+// ================================
+
+function resetTest() {
+
+    clearInterval(timerInterval);
+
+    timerInterval = null;
+
+    timeLeft = TEST_TIME;
+
+    testStarted = false;
+
+    finished = false;
+
+    typingBox.value = "";
+
+    resultBox.style.display = "none";
+
+    typingBox.disabled = false;
+
+    finishBtn.disabled = false;
+
+    updateTimerDisplay();
+
+    updateLiveResults();
+}
+
+
+// ================================
+// NORMALIZE TEXT
+// ================================
+
+function normalizeText(text) {
+
+    return text
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .trim();
+}
+
+
+// ================================
+// WORD TOKENIZER
+// ================================
+
+function getWords(text) {
+
+    const cleanText = normalizeText(text);
+
+    if (!cleanText) {
+        return [];
+    }
+
+    return cleanText
+        .split(/\s+/)
+        .filter(Boolean);
+}
+
+
+// ================================
+// MISTAKE CALCULATION
+// ================================
+//
+// One wrong / missing / extra word = 1 mistake.
+// Punctuation and spelling differences
+// inside a word are also treated as 1 mistake.
+//
+// Example:
+// correct: court
+// typed:   cout
+// = 1 mistake
+//
+// correct: court
+// typed:   courtx
+// = 1 mistake
+//
+// extra word = 1 mistake
+// missing word = 1 mistake
+//
+
 function calculateMistakes(original, typed) {
 
-    const originalWords =
-        original.split(/\s+/).filter(Boolean);
-
-    const typedWords =
-        typed.split(/\s+/).filter(Boolean);
+    const originalWords = getWords(original);
+    const typedWords = getWords(typed);
 
     let mistakes = 0;
 
-    const max =
-        Math.max(
-            originalWords.length,
-            typedWords.length
-        );
+    const maxLength = Math.max(
+        originalWords.length,
+        typedWords.length
+    );
 
-    for (let i = 0; i < max; i++) {
+    for (let i = 0; i < maxLength; i++) {
 
-        if (
-            originalWords[i] === undefined ||
-            typedWords[i] === undefined
-        ) {
+        const originalWord =
+            originalWords[i];
+
+        const typedWord =
+            typedWords[i];
+
+        // Missing word
+        if (typedWord === undefined) {
+
             mistakes++;
+
+            continue;
         }
-        else if (
-            originalWords[i] !== typedWords[i]
-        ) {
+
+        // Extra word
+        if (originalWord === undefined) {
+
+            mistakes++;
+
+            continue;
+        }
+
+        // Wrong word / spelling /
+        // punctuation difference
+        if (originalWord !== typedWord) {
+
             mistakes++;
         }
     }
@@ -103,38 +265,92 @@ function calculateMistakes(original, typed) {
     return mistakes;
 }
 
+
+// ================================
+// ACCURACY
+// ================================
+
+function calculateAccuracy(
+    original,
+    typed
+) {
+
+    const originalWords =
+        getWords(original);
+
+    const typedWords =
+        getWords(typed);
+
+    if (typedWords.length === 0) {
+        return 100;
+    }
+
+    let correctWords = 0;
+
+    const maxLength =
+        Math.max(
+            originalWords.length,
+            typedWords.length
+        );
+
+    for (let i = 0; i < maxLength; i++) {
+
+        if (
+            originalWords[i] !== undefined &&
+            typedWords[i] !== undefined &&
+            originalWords[i] === typedWords[i]
+        ) {
+
+            correctWords++;
+        }
+    }
+
+    const accuracy =
+        (correctWords / typedWords.length) * 100;
+
+    return Math.max(
+        0,
+        Math.min(100, accuracy)
+    );
+}
+
+
+// ================================
+// LIVE RESULTS
+// ================================
+
 function updateLiveResults() {
 
-    const typed = typingBox.value;
+    const original =
+        getCurrentPassage();
 
-    const passage = getPassage();
+    const typed =
+        typingBox.value;
 
-    const words = countWords(typed);
+    const typedWords =
+        countWords(typed);
 
     const mistakes =
         calculateMistakes(
-            passage,
+            original,
+            typed
+        );
+
+    const accuracy =
+        calculateAccuracy(
+            original,
             typed
         );
 
     const elapsed =
-        600 - timeLeft;
+        TEST_TIME - timeLeft;
 
     let wpm = 0;
 
     if (elapsed > 0) {
+
         wpm =
-            (words / elapsed) * 60;
-    }
-
-    let accuracy = 100;
-
-    if (words > 0) {
-        accuracy =
-            Math.max(
-                0,
-                100 - (mistakes / words * 100)
-            );
+            (typedWords / elapsed) * 60;
     }
 
     mistakesDisplay.textContent =
@@ -144,7 +360,7 @@ function updateLiveResults() {
         typed.length;
 
     wordsDisplay.textContent =
-        words;
+        typedWords;
 
     accuracyDisplay.textContent =
         accuracy.toFixed(2) + "%";
@@ -152,6 +368,11 @@ function updateLiveResults() {
     speedDisplay.textContent =
         wpm.toFixed(2) + " WPM";
 }
+
+
+// ================================
+// START WHEN USER TYPES
+// ================================
 
 typingBox.addEventListener(
     "input",
@@ -172,14 +393,19 @@ typingBox.addEventListener(
     }
 );
 
-finishBtn.addEventListener(
-    "click",
-    function () {
 
-        finishTest();
-
-    }
-);
+// ================================
+// MARK CALCULATION
+// ================================
+//
+// 0 mistakes  = 20 marks
+// 40 mistakes = 10 marks
+// 41 mistakes = 9.75 marks
+// 79 mistakes = 0.25 marks
+// 80 mistakes = 0 marks
+//
+// Every mistake = -0.25 marks
+//
 
 function calculateMarks(mistakes) {
 
@@ -187,11 +413,19 @@ function calculateMarks(mistakes) {
         return 0;
     }
 
+    const marks =
+        20 - (mistakes * 0.25);
+
     return Math.max(
         0,
-        20 - (mistakes * 0.25)
+        marks
     );
 }
+
+
+// ================================
+// FINISH TEST
+// ================================
 
 function finishTest() {
 
@@ -205,86 +439,184 @@ function finishTest() {
 
     timerInterval = null;
 
-    const typed = typingBox.value;
+    const original =
+        getCurrentPassage();
 
-    const passage = getPassage();
+    const typed =
+        typingBox.value;
 
-    const mistakes =
-        calculateMistakes(
-            passage,
-            typed
-        );
+    const passageWords =
+        countWords(original);
+
+    const passageKeystrokes =
+        original.length;
 
     const typedWords =
         countWords(typed);
 
-    const passageWords =
-        countWords(passage);
+    const typedKeystrokes =
+        typed.length;
 
-    const marks =
-        calculateMarks(mistakes);
+    const mistakes =
+        calculateMistakes(
+            original,
+            typed
+        );
+
+    const accuracy =
+        calculateAccuracy(
+            original,
+            typed
+        );
 
     const elapsed =
         Math.max(
             1,
-            600 - timeLeft
+            TEST_TIME - timeLeft
         );
 
     const speed =
         (typedWords / elapsed) * 60;
 
-    const accuracy =
-        typed.length === 0
-            ? 100
-            : Math.max(
-                0,
-                100 - (mistakes / typedWords * 100)
-            );
+    const marks =
+        calculateMarks(mistakes);
 
-    document.getElementById("finalSpeed").textContent =
+    const correctWords =
+        Math.max(
+            0,
+            typedWords - mistakes
+        );
+
+    const wrongWords =
+        mistakes;
+
+
+    // ================================
+    // SHOW RESULT
+    // ================================
+
+    finalPassageWords.textContent =
+        passageWords;
+
+    finalPassageKeystrokes.textContent =
+        passageKeystrokes;
+
+    finalSpeed.textContent =
         speed.toFixed(2);
 
-    document.getElementById("finalAccuracy").textContent =
+    finalAccuracy.textContent =
         accuracy.toFixed(2);
 
-    document.getElementById("finalMistakes").textContent =
+    finalMistakes.textContent =
         mistakes;
 
-    document.getElementById("finalWords").textContent =
+    finalWords.textContent =
         typedWords;
 
-    document.getElementById("finalKeystrokes").textContent =
-        typed.length;
+    finalKeystrokes.textContent =
+        typedKeystrokes;
 
-    document.getElementById("finalCorrect").textContent =
-        Math.max(0, typedWords - mistakes);
+    finalCorrect.textContent =
+        correctWords;
 
-    document.getElementById("finalWrong").textContent =
-        mistakes;
+    finalWrong.textContent =
+        wrongWords;
 
-    document.getElementById("finalMarks").textContent =
+    finalMarks.textContent =
         marks.toFixed(2);
 
-    if (document.getElementById("finalPassageWords")) {
-        document.getElementById("finalPassageWords").textContent =
-            passageWords;
+
+    // ================================
+    // PASS / FAIL
+    // ================================
+
+    if (mistakes >= 80) {
+
+        testStatus.textContent =
+            "FAIL";
+
+    } else {
+
+        testStatus.textContent =
+            "PASS";
     }
 
-    if (document.getElementById("finalPassageKeystrokes")) {
-        document.getElementById("finalPassageKeystrokes").textContent =
-            passage.length;
-    }
 
-    if (document.getElementById("testStatus")) {
+    resultBox.style.display =
+        "block";
 
-        document.getElementById("testStatus").textContent =
-            mistakes >= 80
-                ? "FAIL"
-                : "PASS";
-    }
-
-    resultBox.style.display = "block";
+    typingBox.disabled = true;
 }
 
-updateTimer();
+
+// ================================
+// FINISH BUTTON
+// ================================
+
+finishBtn.addEventListener(
+    "click",
+    function () {
+
+        finishTest();
+
+    }
+);
+
+
+// ================================
+// PASSAGE CHANGE
+// ================================
+
+passageSelect.addEventListener(
+    "change",
+    function () {
+
+        currentPassage =
+            Number(this.value);
+
+        loadPassage(
+            currentPassage
+        );
+
+        resetTest();
+    }
+);
+
+
+// ================================
+// LOAD PASSAGE
+// ================================
+
+function loadPassage(index) {
+
+    if (
+        typeof passages === "undefined" ||
+        !passages[index]
+    ) {
+        passageBox.textContent =
+            "Passage not found.";
+
+        return;
+    }
+
+    passageBox.textContent =
+        passages[index];
+
+    passageTitle.textContent =
+        "PASSAGE-" + (index + 1);
+
+    document.title =
+        "Typing Test - Passage " +
+        (index + 1);
+}
+
+
+// ================================
+// INITIALIZE
+// ================================
+
+loadPassage(0);
+
+updateTimerDisplay();
+
 updateLiveResults();
