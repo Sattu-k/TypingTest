@@ -1,115 +1,303 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Typing Test</title>
-    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #passage {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f7f7f7;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        #typingBox {
+            width: 100%;
+            min-height: 220px;
+            padding: 15px;
+            box-sizing: border-box;
+            font-size: 18px;
+            resize: vertical;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .stat {
+            padding: 15px;
+            background: #f1f1f1;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 22px;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        #result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <h1>Typing Test</h1>
+    <h1>Typing Test</h1>
 
-        <div class="timer">
-            Time: <span id="timer">10:00</span>
-        </div>
+
+    <!-- ==========================================
+         400 WORD PASSAGE
+         ========================================== -->
+
+    <div id="passage">
+
+        Typing is a skill that improves with regular practice, patience, and careful
+        attention. A good typist does not focus only on speed but also pays attention
+        to accuracy, punctuation, spacing, and correct spelling. When you practice
+        every day, your fingers gradually become familiar with the position of each
+        key on the keyboard. With enough practice, many common words can be typed
+        without thinking about each individual letter.
+
+        The purpose of a typing test is to measure both speed and accuracy. Typing
+        quickly while making many mistakes does not produce a good result. It is
+        better to maintain a steady rhythm and type each word correctly. If you make
+        a mistake during practice, do not become frustrated. Instead, notice the
+        mistake and try to understand why it happened. Sometimes a mistake happens
+        because a finger moves too quickly, while at other times it happens because
+        the typist is not paying enough attention to the text.
+
+        Good posture is also important during a typing session. Sit comfortably with
+        your back supported and keep your shoulders relaxed. Place your hands in a
+        natural position on the keyboard and avoid pressing the keys with unnecessary
+        force. Keep your eyes on the passage as much as possible instead of constantly
+        looking down at your hands. This helps develop touch typing skills and makes
+        typing more natural.
+
+        Another important part of typing is consistency. A person who practices for
+        a few minutes every day can often improve more than someone who practices for
+        several hours only once a week. Short and regular practice sessions help
+        build muscle memory. As your confidence increases, you can gradually increase
+        your typing speed without sacrificing accuracy. Remember that every mistake
+        is an opportunity to learn something.
+
+        When completing a typing test, read the passage carefully before you begin.
+        Start typing at a comfortable speed and try to maintain the same rhythm from
+        beginning to end. Pay special attention to spaces because missing or adding
+        a space can change the structure of a sentence. Punctuation marks are also
+        important because they are part of the original passage and should be typed
+        exactly as shown.
+
+        Technology has made typing an essential skill for students, teachers, office
+        workers, writers, programmers, and many other professionals. Emails, reports,
+        applications, messages, documents, and online forms all require accurate
+        keyboard input. Improving typing ability can therefore save time and make
+        everyday computer work easier.
+
+        The most effective way to improve is to practice with a clear goal. You may
+        begin by concentrating on accuracy and then slowly work toward higher speed.
+        Keep track of your results after every test and compare your performance over
+        time. If your mistake count decreases while your speed remains steady, you
+        are making progress. If your speed increases but accuracy falls sharply, slow
+        down slightly and focus on correct typing.
+
+        Remember that typing is not a competition against another person. Your main
+        goal should be to improve your own previous result. With patience, regular
+        practice, and careful attention, your typing speed and accuracy can improve
+        significantly. Keep practicing, stay relaxed, and concentrate on every word.
+        Small improvements made consistently can eventually produce a major difference
+        in your overall typing skill.
+
+        Good typing habits can also help you work more efficiently when using a
+        computer for study or business. Instead of searching for every key, you can
+        keep your attention on the information you are writing. This saves time and
+        reduces unnecessary interruptions. Over time, accurate typing becomes a
+        natural part of computer use.
+
+        Before starting a test, make sure you are comfortable and ready. Take a
+        moment to read the first few lines and understand the punctuation. Then begin
+        typing calmly. Do not rush simply because the timer has started. A controlled
+        rhythm is usually more useful than sudden bursts of speed. Focus on accuracy
+        first, and speed will gradually follow with regular practice.
+        
     </div>
 
-    <div class="test-container">
 
-        <!-- LEFT SIDE: PASSAGE -->
-        <div class="passage-section">
-            <h2>Passage</h2>
+    <!-- ==========================================
+         LIVE STATISTICS
+         ========================================== -->
 
-            <div id="passage" class="passage">
-Typing practice is a useful way to improve speed, accuracy, concentration, and confidence while working on a computer. A good typing exercise should encourage the learner to focus on the text, maintain a steady rhythm, and avoid unnecessary pauses. The goal is not simply to type quickly, but to type correctly and consistently. Regular practice can gradually improve finger movement, hand coordination, and familiarity with common words and punctuation.
+    <div class="stats">
 
-In a formal typing test, the passage should be read carefully before the test begins. The learner should sit comfortably, keep both hands in the correct position, and look at the passage rather than the keyboard whenever possible. Each character should be entered in the same order as it appears in the original passage. If an error occurs, the learner should continue typing without stopping. This method makes it easier to measure typing accuracy and speed.
-
-A timed exercise also teaches the importance of concentration. When the clock is running, the learner must balance speed with accuracy. Typing too quickly may create more mistakes, while typing too slowly may reduce the speed score. A steady pace is usually more effective. The learner should remain calm, pay attention to spaces and punctuation, and avoid being distracted by the timer.
-
-After the test, useful results can include total words typed, total keystrokes, correct keystrokes, incorrect keystrokes, typing speed, accuracy percentage, and the number of mistakes. A marking system can also make the result easy to understand. For example, a test may begin with twenty marks, and a small fraction of a mark may be deducted for every mistake. This gives the learner a reason to improve both speed and accuracy.
-
-Consistent practice is more valuable than occasional long sessions. Spending a few minutes each day can build better habits over time. Learners can begin with simple passages and gradually move to more difficult material containing longer sentences, numbers, punctuation, and unfamiliar words. The important thing is to practice carefully and review the result after each attempt.
-
-A designed typing test should be fair, simple, and easy to use. It should provide the same passage to every learner, use the same time limit, and calculate results using the same rules. Clear instructions help prevent confusion and allow learners to concentrate on the task. With practice and honest results, a typing test can become a useful tool for measuring progress and developing efficient computer skills.
-            </div>
+        <div class="stat">
+            Time
+            <strong id="timer">10:00</strong>
         </div>
 
-        <!-- RIGHT SIDE: TYPING -->
-        <div class="typing-section">
-            <h2>Type Here</h2>
+        <div class="stat">
+            Mistakes
+            <strong id="mistakes">0</strong>
+        </div>
 
-            <textarea
-                id="typingBox"
-                placeholder="Start typing here..."
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="off"
-                spellcheck="false">
-            </textarea>
+        <div class="stat">
+            Words
+            <strong id="words">0</strong>
+        </div>
 
-            <div class="live-results">
-                <div>
-                    <strong>Mistakes:</strong>
-                    <span id="mistakes">0</span>
-                </div>
+        <div class="stat">
+            Keystrokes
+            <strong id="keystrokes">0</strong>
+        </div>
 
-                <div>
-                    <strong>Keystrokes:</strong>
-                    <span id="keystrokes">0</span>
-                </div>
+        <div class="stat">
+            Accuracy
+            <strong id="accuracy">100.00%</strong>
+        </div>
 
-                <div>
-                    <strong>Words:</strong>
-                    <span id="words">0</span>
-                </div>
-
-                <div>
-                    <strong>Accuracy:</strong>
-                    <span id="accuracy">100%</span>
-                </div>
-
-                <div>
-                    <strong>Speed:</strong>
-                    <span id="speed">0 WPM</span>
-                </div>
-            </div>
-
-            <button id="finishBtn">Finish Test</button>
+        <div class="stat">
+            Speed
+            <strong id="speed">0.00 WPM</strong>
         </div>
 
     </div>
 
-    <!-- RESULT -->
-    <div id="result" class="result-box" style="display:none;">
+
+    <!-- ==========================================
+         TYPING BOX
+         ========================================== -->
+
+    <textarea
+        id="typingBox"
+        placeholder="Start typing here..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false">
+    </textarea>
+
+
+    <br><br>
+
+
+    <!-- ==========================================
+         FINISH BUTTON
+         ========================================== -->
+
+    <button id="finishBtn">
+        Finish Test
+    </button>
+
+
+    <!-- ==========================================
+         RESULT
+         ========================================== -->
+
+    <div id="result">
 
         <h2>Test Result</h2>
 
-        <p>Speed: <strong><span id="finalSpeed">0</span> WPM</strong></p>
+        <div class="result-row">
+            <span>Speed</span>
+            <strong id="finalSpeed">0.00</strong>
+        </div>
 
-        <p>Accuracy: <strong><span id="finalAccuracy">0</span>%</strong></p>
+        <div class="result-row">
+            <span>Accuracy</span>
+            <strong id="finalAccuracy">0.00</strong>
+        </div>
 
-        <p>Mistakes: <strong><span id="finalMistakes">0</span></strong></p>
+        <div class="result-row">
+            <span>Mistakes</span>
+            <strong id="finalMistakes">0</strong>
+        </div>
 
-        <p>Total Typed Words: <strong><span id="finalWords">0</span></strong></p>
+        <div class="result-row">
+            <span>Words</span>
+            <strong id="finalWords">0</strong>
+        </div>
 
-        <p>Total Keystrokes: <strong><span id="finalKeystrokes">0</span></strong></p>
+        <div class="result-row">
+            <span>Keystrokes</span>
+            <strong id="finalKeystrokes">0</strong>
+        </div>
 
-        <p>Correct Keystrokes: <strong><span id="finalCorrect">0</span></strong></p>
+        <div class="result-row">
+            <span>Correct</span>
+            <strong id="finalCorrect">0</strong>
+        </div>
 
-        <p>Wrong Keystrokes: <strong><span id="finalWrong">0</span></strong></p>
+        <div class="result-row">
+            <span>Wrong</span>
+            <strong id="finalWrong">0</strong>
+        </div>
 
-        <h2>
-            Marks:
-            <span id="finalMarks">20.00</span> / 20
-        </h2>
+        <div class="result-row">
+            <span>Marks / 20</span>
+            <strong id="finalMarks">20.00</strong>
+        </div>
 
     </div>
+
+
+    <!-- ==========================================
+         JAVASCRIPT
+         ========================================== -->
 
     <script src="script.js"></script>
 
 </body>
+
 </html>
+```
