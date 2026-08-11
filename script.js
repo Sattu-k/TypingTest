@@ -25,8 +25,8 @@ const finalWords = document.getElementById("finalWords");
 const finalKeystrokes = document.getElementById("finalKeystrokes");
 const finalCorrect = document.getElementById("finalCorrect");
 const finalWrong = document.getElementById("finalWrong");
-const finalMarks = document.getElementById("finalMarks");
 
+const finalMarks = document.getElementById("finalMarks");
 const finalPassageWords =
     document.getElementById("finalPassageWords");
 
@@ -37,46 +37,38 @@ const testStatus =
     document.getElementById("testStatus");
 
 
+/* ================================
+   GET CURRENT PASSAGE
+================================ */
 
-/* ==========================================
-   PASSAGE INFORMATION
-   ========================================== */
-
-function getPassage() {
-    return passages[currentPassage];
+function getCurrentPassage() {
+    return passages[currentPassage] || "";
 }
 
 
-function getPassageWords(text) {
+/* ================================
+   WORD COUNT
+================================ */
+
+function countWords(text) {
+
+    if (!text.trim()) {
+        return 0;
+    }
 
     return text
         .trim()
         .split(/\s+/)
-        .filter(word => word.length > 0);
-
+        .filter(Boolean)
+        .length;
 }
 
 
-function getPassageWordCount() {
+/* ================================
+   TIMER DISPLAY
+================================ */
 
-    return getPassageWords(getPassage()).length;
-
-}
-
-
-function getPassageKeystrokeCount() {
-
-    return getPassage().length;
-
-}
-
-
-
-/* ==========================================
-   TIMER
-   ========================================== */
-
-function updateTimer() {
+function updateTimerDisplay() {
 
     const minutes =
         Math.floor(timeLeft / 60);
@@ -91,25 +83,33 @@ function updateTimer() {
 }
 
 
+/* ================================
+   START TIMER
+================================ */
+
 function startTimer() {
 
     if (timerInterval !== null) {
         return;
     }
 
-    timerInterval = setInterval(() => {
+    timerInterval = setInterval(function () {
 
-        timeLeft--;
+        if (timeLeft > 0) {
 
-        updateTimer();
+            timeLeft--;
 
-        updateLiveResults();
+            updateTimerDisplay();
+
+            updateLiveResults();
+
+        }
 
         if (timeLeft <= 0) {
 
-            timeLeft = 0;
+            clearInterval(timerInterval);
 
-            updateTimer();
+            timerInterval = null;
 
             finishTest();
 
@@ -119,10 +119,9 @@ function startTimer() {
 }
 
 
-
-/* ==========================================
+/* ================================
    RESET TEST
-   ========================================== */
+================================ */
 
 function resetTest() {
 
@@ -140,165 +139,61 @@ function resetTest() {
 
     resultBox.style.display = "none";
 
-    updateTimer();
+    updateTimerDisplay();
 
     updateLiveResults();
-
 }
 
 
-
-/* ==========================================
-   WORD COMPARISON
-   ========================================== */
-
-/*
-   प्रत्येक word compare केला जातो.
-
-   चुकीचा word =
-   1 mistake
-
-   Missing word =
-   1 mistake
-
-   Extra word =
-   1 mistake
-
-   त्यामुळे एकाच चुकीच्या word मधील
-   प्रत्येक letter ला वेगळी mistake
-   मोजली जाणार नाही.
-*/
+/* ================================
+   MISTAKE CALCULATION
+================================ */
 
 function calculateMistakes(original, typed) {
 
     const originalWords =
-        getPassageWords(original);
+        original.trim().split(/\s+/).filter(Boolean);
 
     const typedWords =
-        getPassageWords(typed);
+        typed.trim().split(/\s+/).filter(Boolean);
 
     let mistakes = 0;
 
-    const maxLength =
+    const max =
         Math.max(
             originalWords.length,
             typedWords.length
         );
 
+    for (let i = 0; i < max; i++) {
 
-    for (let i = 0; i < maxLength; i++) {
-
-        const originalWord =
-            originalWords[i];
-
-        const typedWord =
-            typedWords[i];
-
-
-        // Extra word
-        if (originalWord === undefined) {
+        if (
+            originalWords[i] === undefined ||
+            typedWords[i] === undefined
+        ) {
 
             mistakes++;
 
             continue;
         }
 
-
-        // Missing word
-        if (typedWord === undefined) {
-
-            mistakes++;
-
-            continue;
-        }
-
-
-        // Wrong word
-        if (originalWord !== typedWord) {
+        if (
+            originalWords[i] !==
+            typedWords[i]
+        ) {
 
             mistakes++;
 
         }
-
     }
-
-
-    /*
-       Space mistakes आणि punctuation mistakes
-
-       शब्द comparison मध्ये punctuation
-       आधीच word मध्ये येते.
-
-       त्यामुळे punctuation चुकल्यास
-       त्या word ला mistake मिळते.
-    */
-
-
-    // Extra / missing spaces
-    mistakes += calculateSpaceMistakes(
-        original,
-        typed
-    );
-
 
     return mistakes;
 }
 
 
-
-/* ==========================================
-   SPACE COMPARISON
-   ========================================== */
-
-function calculateSpaceMistakes(original, typed) {
-
-    const originalSpaces =
-        (original.match(/ /g) || []).length;
-
-    const typedSpaces =
-        (typed.match(/ /g) || []).length;
-
-
-    /*
-       फक्त space count difference मोजतो.
-       त्यामुळे एका चुकीच्या word मधील
-       प्रत्येक character साठी अतिरिक्त
-       mistakes तयार होत नाहीत.
-    */
-
-    return Math.abs(
-        originalSpaces - typedSpaces
-    );
-
-}
-
-
-
-/* ==========================================
-   TYPED WORDS
-   ========================================== */
-
-function getTypedWordCount() {
-
-    const text =
-        typingBox.value.trim();
-
-    if (text === "") {
-        return 0;
-    }
-
-    return text
-        .split(/\s+/)
-        .filter(word => word.length > 0)
-        .length;
-
-}
-
-
-
-/* ==========================================
+/* ================================
    ACCURACY
-   ========================================== */
+================================ */
 
 function calculateAccuracy(
     typed,
@@ -309,45 +204,36 @@ function calculateAccuracy(
         return 100;
     }
 
-
     const correct =
         Math.max(
             0,
             typed.length - mistakes
         );
 
-
     return Math.min(
         100,
         (correct / typed.length) * 100
     );
-
 }
 
 
-
-/* ==========================================
+/* ================================
    LIVE RESULTS
-   ========================================== */
+================================ */
 
 function updateLiveResults() {
 
     const typed =
         typingBox.value;
 
-    const typedCharacters =
-        typed.length;
-
     const typedWords =
-        getTypedWordCount();
-
+        countWords(typed);
 
     const mistakes =
         calculateMistakes(
-            getPassage(),
+            getCurrentPassage(),
             typed
         );
-
 
     const accuracy =
         calculateAccuracy(
@@ -355,28 +241,23 @@ function updateLiveResults() {
             mistakes
         );
 
-
-    const elapsedSeconds =
+    const elapsed =
         600 - timeLeft;
-
 
     let wpm = 0;
 
-
-    if (elapsedSeconds > 0) {
+    if (elapsed > 0) {
 
         wpm =
-            (typedWords / elapsedSeconds) *
-            60;
+            (typedWords / elapsed) * 60;
 
     }
-
 
     mistakesDisplay.textContent =
         mistakes;
 
     keystrokesDisplay.textContent =
-        typedCharacters;
+        typed.length;
 
     wordsDisplay.textContent =
         typedWords;
@@ -386,23 +267,20 @@ function updateLiveResults() {
 
     speedDisplay.textContent =
         wpm.toFixed(2) + " WPM";
-
 }
 
 
-
-/* ==========================================
-   START TYPING
-   ========================================== */
+/* ================================
+   START WHEN USER TYPES
+================================ */
 
 typingBox.addEventListener(
     "input",
-    function() {
+    function () {
 
         if (finished) {
             return;
         }
-
 
         if (!testStarted) {
 
@@ -412,52 +290,35 @@ typingBox.addEventListener(
 
         }
 
-
         updateLiveResults();
 
     }
 );
 
 
-
-/* ==========================================
-   MARK CALCULATION
-   ========================================== */
+/* ================================
+   MARKS
+================================ */
 
 function calculateMarks(mistakes) {
 
-    /*
-       20 marks maximum
-
-       प्रत्येक mistake = 0.25 mark deduction
-
-       40 mistakes = 10 marks
-
-       41 mistakes = 9.75 marks
-
-       80 mistakes = 0 marks
-
-       80 पेक्षा जास्त = 0 marks
-    */
-
-    let marks =
-        20 - (mistakes * 0.25);
-
-
-    if (marks < 0) {
-        marks = 0;
+    if (mistakes >= 80) {
+        return 0;
     }
 
+    const marks =
+        20 - (mistakes * 0.25);
 
-    return marks;
-
+    return Math.max(
+        0,
+        marks
+    );
 }
 
 
-
-/* ==========================================
+/* ================================
    FINISH TEST
-   ========================================== */
+================================ */
 
 function finishTest() {
 
@@ -465,37 +326,29 @@ function finishTest() {
         return;
     }
 
-
     finished = true;
-
 
     clearInterval(timerInterval);
 
     timerInterval = null;
 
-
     const original =
-        getPassage();
+        getCurrentPassage();
 
     const typed =
         typingBox.value;
 
-
     const passageWords =
-        getPassageWordCount();
-
+        countWords(original);
 
     const passageKeystrokes =
-        getPassageKeystrokeCount();
-
+        original.length;
 
     const typedWords =
-        getTypedWordCount();
-
+        countWords(typed);
 
     const typedKeystrokes =
         typed.length;
-
 
     const mistakes =
         calculateMistakes(
@@ -503,45 +356,29 @@ function finishTest() {
             typed
         );
 
-
     const accuracy =
         calculateAccuracy(
             typed,
             mistakes
         );
 
-
-    const elapsedSeconds =
+    const elapsed =
         Math.max(
             1,
             600 - timeLeft
         );
 
-
     const speed =
-        (typedWords / elapsedSeconds) *
-        60;
-
+        (typedWords / elapsed) * 60;
 
     const marks =
         calculateMarks(mistakes);
 
-
-    /*
-       Correct / wrong words
-
-       Mistakes word-level आहेत.
-    */
-
     const correctWords =
         Math.max(
             0,
-            Math.min(
-                typedWords,
-                passageWords
-            ) - mistakes
+            typedWords - mistakes
         );
-
 
     const wrongWords =
         mistakes;
@@ -593,18 +430,16 @@ function finishTest() {
 
     resultBox.style.display =
         "block";
-
 }
 
 
-
-/* ==========================================
+/* ================================
    FINISH BUTTON
-   ========================================== */
+================================ */
 
 finishBtn.addEventListener(
     "click",
-    function() {
+    function () {
 
         finishTest();
 
@@ -612,14 +447,13 @@ finishBtn.addEventListener(
 );
 
 
-
-/* ==========================================
+/* ================================
    PASSAGE CHANGE
-   ========================================== */
+================================ */
 
 passageSelect.addEventListener(
     "change",
-    function() {
+    function () {
 
         currentPassage =
             Number(this.value);
@@ -630,11 +464,10 @@ passageSelect.addEventListener(
 );
 
 
+/* ================================
+   INITIALIZE
+================================ */
 
-/* ==========================================
-   INITIAL SETUP
-   ========================================== */
-
-updateTimer();
+updateTimerDisplay();
 
 updateLiveResults();
