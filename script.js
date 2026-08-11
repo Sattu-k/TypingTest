@@ -1,4 +1,3 @@
-let currentPassage = 0;
 let timeLeft = 600;
 let timerInterval = null;
 let testStarted = false;
@@ -6,8 +5,6 @@ let finished = false;
 
 const typingBox = document.getElementById("typingBox");
 const finishBtn = document.getElementById("finishBtn");
-const passageSelect = document.getElementById("passageSelect");
-
 const timerDisplay = document.getElementById("timer");
 
 const mistakesDisplay = document.getElementById("mistakes");
@@ -18,74 +15,33 @@ const speedDisplay = document.getElementById("speed");
 
 const resultBox = document.getElementById("result");
 
-const finalSpeed = document.getElementById("finalSpeed");
-const finalAccuracy = document.getElementById("finalAccuracy");
-const finalMistakes = document.getElementById("finalMistakes");
-const finalWords = document.getElementById("finalWords");
-const finalKeystrokes = document.getElementById("finalKeystrokes");
-const finalCorrect = document.getElementById("finalCorrect");
-const finalWrong = document.getElementById("finalWrong");
+function getPassage() {
+    const passage = document.getElementById("passage");
 
-const finalMarks = document.getElementById("finalMarks");
-const finalPassageWords =
-    document.getElementById("finalPassageWords");
+    if (!passage) {
+        return "";
+    }
 
-const finalPassageKeystrokes =
-    document.getElementById("finalPassageKeystrokes");
-
-const testStatus =
-    document.getElementById("testStatus");
-
-
-/* ================================
-   GET CURRENT PASSAGE
-================================ */
-
-function getCurrentPassage() {
-    return passages[currentPassage] || "";
+    return passage.innerText.trim();
 }
 
-
-/* ================================
-   WORD COUNT
-================================ */
-
 function countWords(text) {
-
     if (!text.trim()) {
         return 0;
     }
 
-    return text
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .length;
+    return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
-
-/* ================================
-   TIMER DISPLAY
-================================ */
-
-function updateTimerDisplay() {
-
-    const minutes =
-        Math.floor(timeLeft / 60);
-
-    const seconds =
-        timeLeft % 60;
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
 
     timerDisplay.textContent =
         String(minutes).padStart(2, "0") +
         ":" +
         String(seconds).padStart(2, "0");
 }
-
-
-/* ================================
-   START TIMER
-================================ */
 
 function startTimer() {
 
@@ -95,15 +51,11 @@ function startTimer() {
 
     timerInterval = setInterval(function () {
 
-        if (timeLeft > 0) {
+        timeLeft--;
 
-            timeLeft--;
+        updateTimer();
 
-            updateTimerDisplay();
-
-            updateLiveResults();
-
-        }
+        updateLiveResults();
 
         if (timeLeft <= 0) {
 
@@ -112,50 +64,18 @@ function startTimer() {
             timerInterval = null;
 
             finishTest();
-
         }
 
     }, 1000);
 }
 
-
-/* ================================
-   RESET TEST
-================================ */
-
-function resetTest() {
-
-    clearInterval(timerInterval);
-
-    timerInterval = null;
-
-    timeLeft = 600;
-
-    testStarted = false;
-
-    finished = false;
-
-    typingBox.value = "";
-
-    resultBox.style.display = "none";
-
-    updateTimerDisplay();
-
-    updateLiveResults();
-}
-
-
-/* ================================
-   MISTAKE CALCULATION
-================================ */
-
 function calculateMistakes(original, typed) {
 
     const originalWords =
-        original.trim().split(/\s+/).filter(Boolean);
+        original.split(/\s+/).filter(Boolean);
 
     const typedWords =
-        typed.trim().split(/\s+/).filter(Boolean);
+        typed.split(/\s+/).filter(Boolean);
 
     let mistakes = 0;
 
@@ -171,74 +91,30 @@ function calculateMistakes(original, typed) {
             originalWords[i] === undefined ||
             typedWords[i] === undefined
         ) {
-
             mistakes++;
-
-            continue;
         }
-
-        if (
-            originalWords[i] !==
-            typedWords[i]
+        else if (
+            originalWords[i] !== typedWords[i]
         ) {
-
             mistakes++;
-
         }
     }
 
     return mistakes;
 }
 
-
-/* ================================
-   ACCURACY
-================================ */
-
-function calculateAccuracy(
-    typed,
-    mistakes
-) {
-
-    if (typed.length === 0) {
-        return 100;
-    }
-
-    const correct =
-        Math.max(
-            0,
-            typed.length - mistakes
-        );
-
-    return Math.min(
-        100,
-        (correct / typed.length) * 100
-    );
-}
-
-
-/* ================================
-   LIVE RESULTS
-================================ */
-
 function updateLiveResults() {
 
-    const typed =
-        typingBox.value;
+    const typed = typingBox.value;
 
-    const typedWords =
-        countWords(typed);
+    const passage = getPassage();
+
+    const words = countWords(typed);
 
     const mistakes =
         calculateMistakes(
-            getCurrentPassage(),
+            passage,
             typed
-        );
-
-    const accuracy =
-        calculateAccuracy(
-            typed,
-            mistakes
         );
 
     const elapsed =
@@ -247,10 +123,18 @@ function updateLiveResults() {
     let wpm = 0;
 
     if (elapsed > 0) {
-
         wpm =
-            (typedWords / elapsed) * 60;
+            (words / elapsed) * 60;
+    }
 
+    let accuracy = 100;
+
+    if (words > 0) {
+        accuracy =
+            Math.max(
+                0,
+                100 - (mistakes / words * 100)
+            );
     }
 
     mistakesDisplay.textContent =
@@ -260,7 +144,7 @@ function updateLiveResults() {
         typed.length;
 
     wordsDisplay.textContent =
-        typedWords;
+        words;
 
     accuracyDisplay.textContent =
         accuracy.toFixed(2) + "%";
@@ -268,11 +152,6 @@ function updateLiveResults() {
     speedDisplay.textContent =
         wpm.toFixed(2) + " WPM";
 }
-
-
-/* ================================
-   START WHEN USER TYPES
-================================ */
 
 typingBox.addEventListener(
     "input",
@@ -287,18 +166,20 @@ typingBox.addEventListener(
             testStarted = true;
 
             startTimer();
-
         }
 
         updateLiveResults();
-
     }
 );
 
+finishBtn.addEventListener(
+    "click",
+    function () {
 
-/* ================================
-   MARKS
-================================ */
+        finishTest();
+
+    }
+);
 
 function calculateMarks(mistakes) {
 
@@ -306,19 +187,11 @@ function calculateMarks(mistakes) {
         return 0;
     }
 
-    const marks =
-        20 - (mistakes * 0.25);
-
     return Math.max(
         0,
-        marks
+        20 - (mistakes * 0.25)
     );
 }
-
-
-/* ================================
-   FINISH TEST
-================================ */
 
 function finishTest() {
 
@@ -332,35 +205,24 @@ function finishTest() {
 
     timerInterval = null;
 
-    const original =
-        getCurrentPassage();
+    const typed = typingBox.value;
 
-    const typed =
-        typingBox.value;
+    const passage = getPassage();
 
-    const passageWords =
-        countWords(original);
-
-    const passageKeystrokes =
-        original.length;
+    const mistakes =
+        calculateMistakes(
+            passage,
+            typed
+        );
 
     const typedWords =
         countWords(typed);
 
-    const typedKeystrokes =
-        typed.length;
+    const passageWords =
+        countWords(passage);
 
-    const mistakes =
-        calculateMistakes(
-            original,
-            typed
-        );
-
-    const accuracy =
-        calculateAccuracy(
-            typed,
-            mistakes
-        );
+    const marks =
+        calculateMarks(mistakes);
 
     const elapsed =
         Math.max(
@@ -371,103 +233,58 @@ function finishTest() {
     const speed =
         (typedWords / elapsed) * 60;
 
-    const marks =
-        calculateMarks(mistakes);
+    const accuracy =
+        typed.length === 0
+            ? 100
+            : Math.max(
+                0,
+                100 - (mistakes / typedWords * 100)
+            );
 
-    const correctWords =
-        Math.max(
-            0,
-            typedWords - mistakes
-        );
-
-    const wrongWords =
-        mistakes;
-
-
-    finalPassageWords.textContent =
-        passageWords;
-
-    finalPassageKeystrokes.textContent =
-        passageKeystrokes;
-
-    finalSpeed.textContent =
+    document.getElementById("finalSpeed").textContent =
         speed.toFixed(2);
 
-    finalAccuracy.textContent =
+    document.getElementById("finalAccuracy").textContent =
         accuracy.toFixed(2);
 
-    finalMistakes.textContent =
+    document.getElementById("finalMistakes").textContent =
         mistakes;
 
-    finalWords.textContent =
+    document.getElementById("finalWords").textContent =
         typedWords;
 
-    finalKeystrokes.textContent =
-        typedKeystrokes;
+    document.getElementById("finalKeystrokes").textContent =
+        typed.length;
 
-    finalCorrect.textContent =
-        correctWords;
+    document.getElementById("finalCorrect").textContent =
+        Math.max(0, typedWords - mistakes);
 
-    finalWrong.textContent =
-        wrongWords;
+    document.getElementById("finalWrong").textContent =
+        mistakes;
 
-    finalMarks.textContent =
+    document.getElementById("finalMarks").textContent =
         marks.toFixed(2);
 
-
-    if (mistakes >= 80) {
-
-        testStatus.textContent =
-            "FAIL";
-
-    } else {
-
-        testStatus.textContent =
-            "PASS";
-
+    if (document.getElementById("finalPassageWords")) {
+        document.getElementById("finalPassageWords").textContent =
+            passageWords;
     }
 
+    if (document.getElementById("finalPassageKeystrokes")) {
+        document.getElementById("finalPassageKeystrokes").textContent =
+            passage.length;
+    }
 
-    resultBox.style.display =
-        "block";
+    if (document.getElementById("testStatus")) {
+
+        document.getElementById("testStatus").textContent =
+            mistakes >= 80
+                ? "FAIL"
+                : "PASS";
+    }
+
+    resultBox.style.display = "block";
 }
 
-
-/* ================================
-   FINISH BUTTON
-================================ */
-
-finishBtn.addEventListener(
-    "click",
-    function () {
-
-        finishTest();
-
-    }
-);
-
-
-/* ================================
-   PASSAGE CHANGE
-================================ */
-
-passageSelect.addEventListener(
-    "change",
-    function () {
-
-        currentPassage =
-            Number(this.value);
-
-        resetTest();
-
-    }
-);
-
-
-/* ================================
-   INITIALIZE
-================================ */
-
-updateTimerDisplay();
-
+updateTimer();
 updateLiveResults();
